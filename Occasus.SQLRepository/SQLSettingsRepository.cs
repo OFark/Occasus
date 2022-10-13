@@ -10,7 +10,7 @@ namespace Occasus.SQLRepository;
 
 public class SQLSettingsRepository : IOptionsStorageRepository
 {
-    private CancellationTokenSource? cancellationTokenSource;
+    private CancellationTokenSource? changeCancellationTokenSource;
 
     private IChangeToken? changeToken;    
 
@@ -40,9 +40,8 @@ public class SQLSettingsRepository : IOptionsStorageRepository
     private string CheckTableExistsQuery => $"SELECT COUNT(*) FROM information_schema.TABLES WHERE (TABLE_NAME = '{SQLSettings.TableName}')";
     private string CreateTableCommand => $"CREATE TABLE dbo.[{SQLSettings.TableName}] ([{SQLSettings.KeyColumnName}] varchar(255) NOT NULL,[{SQLSettings.ValueColumnName}] nvarchar(MAX) NOT NULL) ON[PRIMARY]; ALTER TABLE dbo.[{SQLSettings.TableName}] ADD CONSTRAINT PK_{SQLSettings.TableName.Replace(" ", "_")} PRIMARY KEY CLUSTERED([{SQLSettings.KeyColumnName}]) WITH(STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON[PRIMARY]; ALTER TABLE dbo.[{SQLSettings.TableName}] SET(LOCK_ESCALATION = TABLE)";
     private string LoadQuery => $"SELECT [{SQLSettings.KeyColumnName}], [{SQLSettings.ValueColumnName}] FROM [{SQLSettings.TableName}]";
-    public async Task ClearSettings(string? classname = null, CancellationToken? token = null)
+    public async Task ClearSettings(string? classname = null, CancellationToken cancellation = default)
     {
-        token ??= new CancellationTokenSource().Token;
 
         var command = $"DELETE FROM [{SQLSettings.TableName}]{(classname is not null ? $" WHERE [{SQLSettings.KeyColumnName}] LIKE @Filter" : "")}";
 
@@ -53,19 +52,18 @@ public class SQLSettingsRepository : IOptionsStorageRepository
             query.Parameters.Add(new SqlParameter("@Filter", $"{classname}:%"));
         }
         query.Connection.Open();
-        await query.ExecuteNonQueryAsync(token.Value);
+        await query.ExecuteNonQueryAsync(cancellation);
 
-        cancellationTokenSource?.Cancel();
+        changeCancellationTokenSource?.Cancel();
     }
 
-    public async Task DeleteSetting(string key, CancellationToken? token = null)
+    public async Task DeleteSetting(string key, CancellationToken cancellation = default)
     {
         Debug.Assert(SQLSettings is not null);
         Debug.Assert(!string.IsNullOrWhiteSpace(key));
 
-        token ??= new CancellationTokenSource().Token;
 
-        var settings = await LoadSettingsAsync(token.Value);
+        var settings = await LoadSettingsAsync(cancellation);
 
         if (settings is null || !settings.ContainsKey(key)) return;
 
@@ -77,9 +75,9 @@ public class SQLSettingsRepository : IOptionsStorageRepository
 
         query.Connection.Open();
 
-        _ = await query.ExecuteNonQueryAsync(token.Value);
+        _ = await query.ExecuteNonQueryAsync(cancellation);
 
-        cancellationTokenSource?.Cancel();
+        changeCancellationTokenSource?.Cancel();
     }
 
     public IDictionary<string, string> LoadSettings()
@@ -90,21 +88,19 @@ public class SQLSettingsRepository : IOptionsStorageRepository
         return ReadSettingsFromDB();
     }
 
-    public Task ReloadSettings(CancellationToken? token = null)
+    public Task ReloadSettings(CancellationToken cancellation = default)
     {
-        cancellationTokenSource?.Cancel();
+        changeCancellationTokenSource?.Cancel();
 
         return Task.CompletedTask;
     }
 
-    public async Task StoreSetting(string key, string value, CancellationToken? token = null)
+    public async Task StoreSetting(string key, string value, CancellationToken cancellation = default)
     {
         Debug.Assert(SQLSettings is not null);
         Debug.Assert(!string.IsNullOrWhiteSpace(key));
 
-        token ??= new CancellationTokenSource().Token;
-
-        var settings = await LoadSettingsAsync(token.Value);
+        var settings = await LoadSettingsAsync(cancellation);
 
         if (SQLSettings.EncryptSettings)
         {
@@ -128,14 +124,14 @@ public class SQLSettingsRepository : IOptionsStorageRepository
 
         query.Connection.Open();
 
-        _ = await query.ExecuteNonQueryAsync(token.Value);
+        _ = await query.ExecuteNonQueryAsync(cancellation);
 
     }
 
     public IChangeToken Watch()
     {
-        cancellationTokenSource = new CancellationTokenSource();
-        changeToken = new CancellationChangeToken(cancellationTokenSource.Token);
+        changeCancellationTokenSource = new CancellationTokenSource();
+        changeToken = new CancellationChangeToken(changeCancellationTokenSource.Token);
 
         return changeToken;
     }
@@ -158,17 +154,15 @@ public class SQLSettingsRepository : IOptionsStorageRepository
 
     }
 
-    private async Task<IDictionary<string, string>> LoadSettingsAsync(CancellationToken? token = null)
+    private async Task<IDictionary<string, string>> LoadSettingsAsync(CancellationToken cancellation = default)
     {
         Debug.Assert(SQLSettings is not null);
-
-        token ??= new CancellationTokenSource().Token;
 
         var dic = new Dictionary<string, string>();
         using var connection = new SqlConnection(SQLSettings.ConnectionString);
         using var query = new SqlCommand(LoadQuery, connection);
         query.Connection.Open();
-        using (var reader = await query.ExecuteReaderAsync(token.Value))
+        using (var reader = await query.ExecuteReaderAsync(cancellation))
         {
             while (reader.Read())
             {

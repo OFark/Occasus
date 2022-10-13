@@ -19,11 +19,11 @@ namespace Occasus.Settings
             this.serviceProvider = serviceProvider;
         }
 
-        public async Task ClearAllSettings(CancellationToken? token = null)
+        public async Task ClearAllSettings(CancellationToken cancellation = default)
         {
             foreach (var set in SettingsStore.SettingsWithRepositories)
             {
-                await set.ClearSettingStorageAsync(token).ConfigureAwait(false);
+                await set.ClearSettingStorageAsync(cancellation).ConfigureAwait(false);
             }
         }
 
@@ -38,24 +38,24 @@ namespace Occasus.Settings
             return SettingsStore.Settings;
         }
 
-        public async Task ReloadAllSettings(CancellationToken? token = null)
+        public async Task ReloadAllSettings(CancellationToken cancellation = default)
         {
             foreach (var setttingBox in SettingsStore.SettingsWithRepositories)
             {
-                await setttingBox.ReloadSettingsFromStorageAsync(token).ConfigureAwait(false);
+                await setttingBox.ReloadSettingsFromStorageAsync(cancellation).ConfigureAwait(false);
             }
         }
 
-        public async Task<ValidateOptionsResult> PersistSettingToStorage(SettingBox setting, CancellationToken token)
+        public async Task<ValidateOptionsResult> PersistSettingToStorage(SettingBox setting, CancellationToken cancellation = default)
         {
             var valid = Validate(setting);
             if (!valid.Failed)
             {
-                await setting.ClearSettingStorageAsync(token).ConfigureAwait(false);
+                await setting.ClearSettingStorageAsync(cancellation).ConfigureAwait(false);
 
-                await setting.PersistSettingToStorageAsync(logger, token).ConfigureAwait(false);
+                await setting.PersistSettingToStorageAsync(logger, cancellation).ConfigureAwait(false);
 
-                await setting.ReloadSettingsFromStorageAsync(token).ConfigureAwait(false);
+                await setting.ReloadSettingsFromStorageAsync(cancellation).ConfigureAwait(false);
             }
 
             return valid;

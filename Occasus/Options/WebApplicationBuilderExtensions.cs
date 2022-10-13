@@ -22,7 +22,7 @@ public static class WebApplicationBuilderExtensions
 
     private static ILogger CreateLogger(WebApplicationBuilder builder) => builder.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
 
-    private static WebApplicationBuilder UseOccasus(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder UseOccasus(this WebApplicationBuilder builder)
     {
         logger ??= CreateLogger(builder);
 
@@ -81,7 +81,7 @@ public static class WebApplicationBuilderExtensions
         return storageRepository;
     }
 
-    public static void AddConfigurationSource(this WebApplicationBuilder builder, IOptionsStorageRepository storageRepository)
+    public static void AddConfigurationSource(this WebApplicationBuilder builder, IOptionsStorageRepository storageRepository, bool bypassRegistration = false)
     {
         logger ??= CreateLogger(builder);
 
@@ -90,8 +90,11 @@ public static class WebApplicationBuilderExtensions
         var respositoryname = storageRepository.GetType().Name;
         if (!SettingsStore.ActiveRepositories.Contains(storageRepository))
         {
-            logger.LogInformation("Adding {respositoryname} to the Configuration source", respositoryname);
-            builder.Configuration.Add<OccasusConfigurationSource>(source => source.StorageRepository = storageRepository);
+            if (!bypassRegistration)
+            {
+                logger.LogInformation("Adding {respositoryname} to the Configuration source", respositoryname);
+                builder.Configuration.Add<OccasusConfigurationSource>(source => source.StorageRepository = storageRepository);
+            }
             SettingsStore.ActiveRepositories.Add(storageRepository);
         }
         else

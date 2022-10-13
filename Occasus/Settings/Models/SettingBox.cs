@@ -39,9 +39,9 @@ namespace Occasus.Settings.Models
                 SetHash();
             }
         }
-        internal async Task ClearSettingStorageAsync(CancellationToken? cancellation = default)
+        internal async Task ClearSettingStorageAsync(CancellationToken cancellation = default)
         {
-            if (Repository is null) throw new InvalidOperationException("Setting has no respoitory");
+            if (Repository is null) throw new InvalidOperationException("Setting has no repository");
 
             await Repository.ClearSettings(Type.Name, cancellation).ConfigureAwait(false);
         }
@@ -54,9 +54,9 @@ namespace Occasus.Settings.Models
             return Value;
         }
 
-        internal async Task PersistSettingToStorageAsync(ILogger? logger, CancellationToken? cancellation = default)
+        internal async Task PersistSettingToStorageAsync(ILogger? logger, CancellationToken cancellation = default)
         {
-            if (Repository is null) throw new InvalidOperationException("Setting has no respoitory");
+            if (Repository is null) throw new InvalidOperationException("Setting has no repository");
 
             var settingStorage = Value is not null ? ToSettingItems(Value, new() { Type.Name }, logger) : new() { new(Type.Name, null) };
 
@@ -72,9 +72,9 @@ namespace Occasus.Settings.Models
 
         }
 
-        internal async Task ReloadSettingsFromStorageAsync(CancellationToken? cancellation = default)
+        internal async Task ReloadSettingsFromStorageAsync(CancellationToken cancellation = default)
         {            
-            if (Repository is null) throw new InvalidOperationException("Setting has no respoitory");
+            if (Repository is null) throw new InvalidOperationException("Setting has no repository");
 
             await Repository.ReloadSettings(cancellation).ConfigureAwait(false);
         }
