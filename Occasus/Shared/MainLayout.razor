@@ -1,0 +1,31 @@
+﻿@using Occasus.Settings
+@inherits LayoutComponentBase
+
+<PageTitle>Occasus</PageTitle>
+
+@*<MudThemeProvider Theme="@OccasusTheme" />*@
+<MudThemeProvider Theme="_themeManager.Theme" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+
+<MudLayout>
+    <MudAppBar Elevation="2">
+        <MudText Typo=Typo.h3>Occasus</MudText>
+    </MudAppBar>
+    
+    <MudMainContent>
+        @if (MessageStore.Messages.Count > 0)
+    {
+        <MudPaper Elevation="2" Class="mud-theme-warning mb-6 pa-2">
+            @foreach (var message in MessageStore.Messages)
+            {
+                <MudText Typo=Typo.h6>@message</MudText>
+            }
+        </MudPaper>
+    }
+        @Body
+    </MudMainContent>
+    <MudThemeManagerButton OnClick="@((e) => OpenThemeManager(true))" />
+    <MudThemeManager Open="_themeManagerOpen" OpenChanged="OpenThemeManager" Theme="_themeManager" ThemeChanged="UpdateTheme" />
+</MudLayout>
