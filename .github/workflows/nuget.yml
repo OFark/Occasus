@@ -17,7 +17,12 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
-
+    # Build
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+      
     # Publish
     - name: Pack Occasus
       run: dotnet pack Occasus.sln -c Release
