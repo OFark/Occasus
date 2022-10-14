@@ -10,6 +10,9 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Company />
     <Description>Allows for custom IOption sources, with an interface to edit the settings</Description>
+    <PackageProjectUrl>https://github.com/OFark/Occasus</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/OFark/Occasus.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
 
