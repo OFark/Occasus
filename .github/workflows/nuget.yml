@@ -1,0 +1,31 @@
+name: publish to nuget
+on:
+  push:
+    branches:
+      - main # Default release branch, may also be named 'master' or 'develop'
+jobs:
+  publish:
+    name: build, pack & publish
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0 
+    - name: Nerdbank.GitVersioning
+      uses: dotnet/nbgv@master
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+    # Build
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore -c Release
+      
+    # Publish
+    - name: Pack Occasus
+      run: dotnet pack Occasus.sln -c Release
+      
+    - name: Publish to GitHub packages 
+      run: dotnet nuget push "**/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
