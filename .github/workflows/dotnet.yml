@@ -12,11 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Nerdbank.GitVersioning
-    - uses: dotnet/nbgv@master
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0 
+    - name: Nerdbank.GitVersioning
+      uses: dotnet/nbgv@master
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
