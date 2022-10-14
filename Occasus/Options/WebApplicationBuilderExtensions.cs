@@ -102,31 +102,4 @@ public static class WebApplicationBuilderExtensions
             logger.LogInformation("Skipped adding {respositoryname} to the Configuration Store, this repository is already in the store.", respositoryname);
         }
     }
-
-
-    public static void UseOccasusUI(this WebApplication app, string? uiPassword = null)
-    {
-        logger?.LogInformation("Enabling the Ocassus UI requirements");
-
-        logger?.LogTrace("Adding the Static files from the Occasus Assembly");
-        app.UseStaticFiles(new StaticFileOptions
-        {
-            FileProvider = new EmbeddedFileProvider(ThisAssembly, "Occasus.wwwroot")
-        });
-
-        if (!string.IsNullOrWhiteSpace(uiPassword))
-        {
-            app.Configuration["OccasusUI:Password"] = uiPassword;
-        }
-
-        app.UseStaticFiles();
-
-        logger?.LogTrace("Map Blazor Hub");
-        app.MapBlazorHub();
-        logger?.LogTrace("Map Fallback to /_Host");
-        app.MapFallbackToPage("/occasus/**", "/_Host");
-        logger?.LogTrace("Use Routing");
-        app.UseRouting();
-    }
-
 }
