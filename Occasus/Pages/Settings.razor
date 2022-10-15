@@ -16,18 +16,16 @@
     </MudTabs>
 </MudContainer>
 <MudAppBar Bottom=true Color=Color.Tertiary>
-    <MudGrid Spacing="3" Justify="Justify.FlexEnd">
-        <MudItem>
-            <MudTooltip Text="Reload Settings">
+    <MudSpacer/>
+    <MudToolBar DisableGutters=true Class="gap-3">
+        <MudTooltip Text="Reload Settings">
                 <MudButton StartIcon=@Icons.Rounded.Refresh Variant="Variant.Outlined" IconColor="Color.Info" Color="Color.Inherit" OnClick=ReloadSettings>Reload</MudButton>
             </MudTooltip>
-        </MudItem>
-        <MudItem>
+        
             <MudTooltip Text="Clear All Settings">
-                <MudButton StartIcon=@Icons.Rounded.Clear Variant="Variant.Outlined" IconColor="Color.Warning" Color="Color.Inherit" OnClick=ClearSettings>Clear All</MudButton>
+                <MudButton StartIcon=@Icons.Rounded.ClearAll Variant="Variant.Outlined" IconColor="Color.Warning" Color="Color.Inherit" OnClick=ClearSettings>Clear All</MudButton>
             </MudTooltip>
-        </MudItem>
-    </MudGrid>
+    </MudToolBar>
 
 </MudAppBar>
 

@@ -21,8 +21,9 @@
             </MudPaper>
         }
         <ValidationSummary />
-        <MudToolBar>
-            <MudButton ButtonType=ButtonType.Submit FullWidth=true Variant=Variant.Outlined Disabled="!Setting.HasChanged" Color=@(form!.EditContext?.Validate() ?? true ? Color.Secondary : Color.Error)>Save</MudButton>
+        <MudToolBar DisableGutters="true" Class="gap-3">
+            <MudButton ButtonType=ButtonType.Submit FullWidth=true Variant=Variant.Outlined Disabled=!Setting.HasChanged StartIcon=@Icons.Rounded.Save IconColor=@(Setting.HasChanged ? Color.Success : Color.Inherit)>Save</MudButton>
+            <MudButton OnClick="Clear" FullWidth=true Variant=Variant.Outlined Disabled=Setting.IsDefault StartIcon=@Icons.Rounded.Clear IconColor=Color.Warning>Clear</MudButton>
         </MudToolBar>
     </EditForm>
 </MudTabPanel>
