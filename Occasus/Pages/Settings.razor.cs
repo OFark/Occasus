@@ -54,6 +54,11 @@ namespace Occasus.Pages
                 StateHasChanged();
             }
 
+            if(firstRender)
+            {
+                await ReloadSettings().ConfigureAwait(false);
+            }
+
             await base.OnAfterRenderAsync(firstRender);
         }
 

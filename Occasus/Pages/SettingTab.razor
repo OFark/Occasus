@@ -23,6 +23,8 @@
         <ValidationSummary />
         <MudToolBar DisableGutters="true" Class="gap-3">
             <MudButton ButtonType=ButtonType.Submit FullWidth=true Variant=Variant.Outlined Disabled=!Setting.HasChanged StartIcon=@Icons.Rounded.Save IconColor=@(Setting.HasChanged ? Color.Success : Color.Inherit)>Save</MudButton>
+            <MudButton OnClick="CopyToClipboard" FullWidth=true Variant=Variant.Outlined Disabled=Setting.IsDefault StartIcon=@Icons.Rounded.ContentCopy IconColor=Color.Secondary>Copy</MudButton>
+            <MudButton OnClick="PasteFromClipboard" FullWidth=true Variant=Variant.Outlined Disabled=Setting.IsDefault StartIcon=@Icons.Rounded.ContentPaste IconColor=Color.Secondary>Paste</MudButton>
             <MudButton OnClick="Clear" FullWidth=true Variant=Variant.Outlined Disabled=Setting.IsDefault StartIcon=@Icons.Rounded.Clear IconColor=Color.Warning>Clear</MudButton>
         </MudToolBar>
     </EditForm>
