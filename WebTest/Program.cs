@@ -32,6 +32,9 @@ builder.UseOptionsFromJsonFile("appsettings.json", settings =>
     settings.JsonWriterOptions((ref JsonWriterOptions options) => options.Indented = true);
     settings.JsonNodeOptions((ref JsonNodeOptions options) => options.PropertyNameCaseInsensitive = true);
 })
+    .AddOptions<TestAppSettingsJson>();
+
+builder.UseOptionsFromJsonFile("settings/settings.json")
     .AddOptions<TestJson>();
 
 
