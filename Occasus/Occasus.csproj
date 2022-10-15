@@ -22,20 +22,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="WebTest\**" />
-    <Content Remove="WebTest\**" />
-    <EmbeddedResource Remove="WebTest\**" />
-    <None Remove="WebTest\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Remove="compilerconfig.json" />
     <Content Remove="wwwroot\css\occasus.scss" />
     <Content Remove="wwwroot\scripts\Interop.js" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="wwwroot\css\occasus.scss" />
+    <EmbeddedResource Include="wwwroot\css\occasus.min.css" />
     <EmbeddedResource Include="wwwroot\scripts\Interop.js" />
   </ItemGroup>
 
@@ -48,5 +41,14 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\css\occasus.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\css\occasus.min.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>

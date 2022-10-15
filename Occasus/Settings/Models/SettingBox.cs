@@ -1,11 +1,7 @@
 ﻿using Occasus.Converters;
 using Occasus.Helpers;
 using Occasus.Repository.Interfaces;
-using System.Collections;
-using System.ComponentModel.Design;
-using System.Reflection;
 using System.Text.Json;
-using static MudBlazor.CategoryTypes;
 
 namespace Occasus.Settings.Models
 {
@@ -28,6 +24,7 @@ namespace Occasus.Settings.Models
             jsonSerializerOptions.Converters.Add(new DateOnlyConverter());
             jsonSerializerOptions.Converters.Add(new TimeOnlyConverter());
         }
+
         internal IEnumerable<SettingProperty> EditableProperties => Type.GetOptionableProperties().Select(x => new SettingProperty(x));
         internal bool HasChanged => JsonSerializer.Serialize(Value, jsonSerializerOptions).GetHashCode() != StartingHash;
         internal bool IsDefault => Value == Activator.CreateInstance(Type);
@@ -47,6 +44,17 @@ namespace Occasus.Settings.Models
             if (Repository is null) throw new InvalidOperationException("Setting has no repository");
 
             await Repository.ClearSettings(Type.Name, cancellation).ConfigureAwait(false);
+        }
+
+        internal void SetValue(object newValue)
+        {
+            if(newValue.GetType() == Type)
+            {
+                _value = newValue;
+                return;
+            }
+
+            throw new InvalidOperationException("Cannot set value Types do not match");
         }
 
         internal object LoadValueFromConfiguration(IConfiguration config)
