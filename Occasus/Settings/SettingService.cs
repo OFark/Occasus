@@ -27,6 +27,12 @@ namespace Occasus.Settings
             }
         }
 
+        public SettingBox ReloadFromConfiguration(SettingBox settingBox)
+        {
+            settingBox.LoadValueFromConfiguration(configuration);
+            return settingBox;
+        }
+
         public IEnumerable<SettingBox> GetSettings()
         {
 
@@ -40,9 +46,9 @@ namespace Occasus.Settings
 
         public async Task ReloadAllSettings(CancellationToken cancellation = default)
         {
-            foreach (var setttingBox in SettingsStore.SettingsWithRepositories)
+            foreach (var settingBox in SettingsStore.SettingsWithRepositories)
             {
-                await setttingBox.ReloadSettingsFromStorageAsync(cancellation).ConfigureAwait(false);
+                await settingBox.ReloadSettingsFromStorageAsync(cancellation).ConfigureAwait(false);
             }
         }
 

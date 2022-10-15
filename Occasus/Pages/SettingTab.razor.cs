@@ -60,5 +60,12 @@ namespace Occasus.Pages
             StateHasChanged();
         }
 
+        private async Task Clear()
+        {
+            await Setting.ClearSettingStorageAsync().ConfigureAwait(false);
+            await Setting.ReloadSettingsFromStorageAsync().ConfigureAwait(false);
+            Setting = SettingService.ReloadFromConfiguration(Setting);
+        }
+
     }
 }

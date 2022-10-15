@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Occasus.JSONRepository\Occasus.JSONRepository.csproj" />
     <ProjectReference Include="..\Occasus.SQLRepository\Occasus.SQLRepository.csproj" />
     <ProjectReference Include="..\Occasus\Occasus.csproj" />
   </ItemGroup>

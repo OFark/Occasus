@@ -2,8 +2,10 @@
 using Occasus.Helpers;
 using Occasus.Repository.Interfaces;
 using System.Collections;
+using System.ComponentModel.Design;
 using System.Reflection;
 using System.Text.Json;
+using static MudBlazor.CategoryTypes;
 
 namespace Occasus.Settings.Models
 {
@@ -28,6 +30,7 @@ namespace Occasus.Settings.Models
         }
         internal IEnumerable<SettingProperty> EditableProperties => Type.GetOptionableProperties().Select(x => new SettingProperty(x));
         internal bool HasChanged => JsonSerializer.Serialize(Value, jsonSerializerOptions).GetHashCode() != StartingHash;
+        internal bool IsDefault => Value == Activator.CreateInstance(Type);
         internal bool HasRepository => Repository is not null;
 
         internal Type Type { get; set; }
@@ -58,18 +61,9 @@ namespace Occasus.Settings.Models
         {
             if (Repository is null) throw new InvalidOperationException("Setting has no repository");
 
-            var settingStorage = Value is not null ? ToSettingItems(Value, new() { Type.Name }, logger) : new() { new(Type.Name, null) };
-
-            foreach (var item in settingStorage)
-            {
-                if (item.Value is not null)
-                {
-                    await Repository.StoreSetting(item.Name, item.Value, cancellation).ConfigureAwait(false);
-                }
-            }
+            await Repository.StoreSetting(Value, Type, cancellation).ConfigureAwait(false);
 
             SetHash();
-
         }
 
         internal async Task ReloadSettingsFromStorageAsync(CancellationToken cancellation = default)
@@ -84,120 +78,7 @@ namespace Occasus.Settings.Models
             StartingHash = JsonSerializer.Serialize(Value, jsonSerializerOptions).GetHashCode();
         }
 
-        private List<SettingStorage> ToSettingItems(object obj, List<string> path, ILogger? logger)
-        {
-
-            var results = new List<SettingStorage>();
-
-            if (obj is null)
-            {
-                results.Add(new(ConfigurationPath.Combine(path), null));
-
-                return results;
-            }
-
-            var type = obj.GetType();
-
-            if (type.IsSimple())
-            {
-                results.Add(new(ConfigurationPath.Combine(path), obj as string));
-                return results;
-            }
-
-            if (type.IsDictionary())
-            {
-                foreach (DictionaryEntry item in (IDictionary)obj)
-                {
-                    path.Add(item.Key.ToString()!);
-                    if (item.Value?.GetType().IsSimple() ?? true)
-                    {
-                        results.Add(new(ConfigurationPath.Combine(path), item.Value is DateTime dt ? dt.ToString("s") : item.Value?.ToString()));
-                    }
-                    else
-                    {
-                        var subitems = ToSettingItems(item, path, logger);
-                        results.AddRange(subitems);
-                    }
-                    path.Remove(path.Last());
-
-
-                }
-
-                return results;
-            }
-
-            if (type.IsEnumerable())
-            {
-                var i = 0;
-
-                foreach (var item in (IEnumerable)obj)
-                {
-                    path.Add(i.ToString());
-                    if (item.GetType().IsSimple())
-                    {
-                        if (item is not null)
-                        {
-                            results.Add(new(ConfigurationPath.Combine(path), item is DateTime dt ? dt.ToString("s") : item.ToString()));
-                        }
-                    }
-                    else
-                    {
-
-                        var subitems = ToSettingItems(item, path, logger);
-                        results.AddRange(subitems);
-                    }
-                    path.Remove(path.Last());
-
-
-                    i++;
-                }
-
-                return results;
-            }
-
-            foreach (var prop in type.GetOptionableProperties())
-            {
-                try
-                {
-                    if (obj is not DictionaryEntry || prop.Name != "Value")
-                    {
-                        path.Add(prop.Name);
-                    }
-
-                    if (prop.GetValue(obj) is object value)
-                    {
-
-                        if (prop.PropertyType.IsSimple())
-                        {
-                            results.Add(new(ConfigurationPath.Combine(path), value is DateTime dt ? dt.ToString("s") : value.ToString()));
-                        }
-                        else
-                        {
-                            results.AddRange(ToSettingItems(value, path, logger));
-                        }
-                    }
-                    else
-                    {
-                        results.Add(new(ConfigurationPath.Combine(path), null)); // { MarkedForDeletion = true });
-                    }
-
-                    if (obj is not DictionaryEntry || prop.Name != "Value")
-                    {
-                        path.Remove(path.Last());
-                    }
-                }
-                catch (TargetParameterCountException)
-                {
-                    if (logger is not null)
-                    {
-                        logger.LogWarning("Unable to gather this value from {type}", prop.Name);
-                    }
-                }
-            }
-
-            return results;
-
-        }
+        
 
     }
 }

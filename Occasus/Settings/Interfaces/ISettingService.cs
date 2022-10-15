@@ -9,4 +9,5 @@ public interface ISettingService
     Task<ValidateOptionsResult> PersistSettingToStorage(SettingBox setting, CancellationToken cancellation = default);
     Task ReloadAllSettings(CancellationToken cancellation = default);
     Task ClearAllSettings(CancellationToken cancellation = default);
+    SettingBox ReloadFromConfiguration(SettingBox settingBox);
 }

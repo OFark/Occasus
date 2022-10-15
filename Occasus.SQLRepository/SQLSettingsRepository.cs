@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Occasus.Helpers;
 using Occasus.Repository.Interfaces;
 using Occasus.Settings;
+using Occasus.Settings.Models;
 using System.Data.SqlClient;
 using System.Diagnostics;
 
@@ -12,7 +15,7 @@ public class SQLSettingsRepository : IOptionsStorageRepository
 {
     private CancellationTokenSource? changeCancellationTokenSource;
 
-    private IChangeToken? changeToken;    
+    private IChangeToken? changeToken;
 
     public SQLSettingsRepository(WebApplicationBuilder builder, Action<SQLSourceSettings> settings)
     {
@@ -22,7 +25,10 @@ public class SQLSettingsRepository : IOptionsStorageRepository
 
         settings(SQLSettings);
 
-        if (SQLSettings.ConnectionString is null) throw new ArgumentNullException(nameof(SQLSettings.ConnectionString), $"Connection String can either be built with the {nameof(SQLSettings.WithSQLConnection)} parameter, or specified directly in the {nameof(SQLSourceSettings.ConnectionString)} parameter");
+        if (SQLSettings.ConnectionString is null)
+        {
+            throw new ArgumentNullException(nameof(SQLSettings.ConnectionString), $"Connection String can either be built with the {nameof(SQLSettings.WithSQLConnection)} parameter, or specified directly in the {nameof(SQLSourceSettings.ConnectionString)} parameter");
+        }
 
         if (SQLSettings.EncryptSettings && SQLSettings.EncryptionKey?.Length < 12)
         {
@@ -40,42 +46,19 @@ public class SQLSettingsRepository : IOptionsStorageRepository
     private string CheckTableExistsQuery => $"SELECT COUNT(*) FROM information_schema.TABLES WHERE (TABLE_NAME = '{SQLSettings.TableName}')";
     private string CreateTableCommand => $"CREATE TABLE dbo.[{SQLSettings.TableName}] ([{SQLSettings.KeyColumnName}] varchar(255) NOT NULL,[{SQLSettings.ValueColumnName}] nvarchar(MAX) NOT NULL) ON[PRIMARY]; ALTER TABLE dbo.[{SQLSettings.TableName}] ADD CONSTRAINT PK_{SQLSettings.TableName.Replace(" ", "_")} PRIMARY KEY CLUSTERED([{SQLSettings.KeyColumnName}]) WITH(STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON[PRIMARY]; ALTER TABLE dbo.[{SQLSettings.TableName}] SET(LOCK_ESCALATION = TABLE)";
     private string LoadQuery => $"SELECT [{SQLSettings.KeyColumnName}], [{SQLSettings.ValueColumnName}] FROM [{SQLSettings.TableName}]";
-    public async Task ClearSettings(string? classname = null, CancellationToken cancellation = default)
+    public async Task ClearSettings(string? className = null, CancellationToken cancellation = default)
     {
 
-        var command = $"DELETE FROM [{SQLSettings.TableName}]{(classname is not null ? $" WHERE [{SQLSettings.KeyColumnName}] LIKE @Filter" : "")}";
+        var command = $"DELETE FROM [{SQLSettings.TableName}]{(className is not null ? $" WHERE [{SQLSettings.KeyColumnName}] LIKE @Filter" : "")}";
 
         using var connection = new SqlConnection(SQLSettings.ConnectionString);
         using var query = new SqlCommand(command, connection);
-        if (classname is not null)
+        if (className is not null)
         {
-            query.Parameters.Add(new SqlParameter("@Filter", $"{classname}:%"));
+            query.Parameters.Add(new SqlParameter("@Filter", $"{className}:%"));
         }
         query.Connection.Open();
         await query.ExecuteNonQueryAsync(cancellation);
-
-        changeCancellationTokenSource?.Cancel();
-    }
-
-    public async Task DeleteSetting(string key, CancellationToken cancellation = default)
-    {
-        Debug.Assert(SQLSettings is not null);
-        Debug.Assert(!string.IsNullOrWhiteSpace(key));
-
-
-        var settings = await LoadSettingsAsync(cancellation);
-
-        if (settings is null || !settings.ContainsKey(key)) return;
-
-        var command = $"DELETE FROM [{SQLSettings.TableName}] WHERE [{SQLSettings.KeyColumnName}] = @Key";
-
-        using var connection = new SqlConnection(SQLSettings.ConnectionString);
-        using var query = new SqlCommand(command, connection);
-        query.Parameters.Add(new SqlParameter("@Key", key));
-
-        query.Connection.Open();
-
-        _ = await query.ExecuteNonQueryAsync(cancellation);
 
         changeCancellationTokenSource?.Cancel();
     }
@@ -95,37 +78,22 @@ public class SQLSettingsRepository : IOptionsStorageRepository
         return Task.CompletedTask;
     }
 
-    public async Task StoreSetting(string key, string value, CancellationToken cancellation = default)
+    public async Task StoreSetting<T>(T value, Type valueType, CancellationToken cancellation = default)
     {
         Debug.Assert(SQLSettings is not null);
-        Debug.Assert(!string.IsNullOrWhiteSpace(key));
 
-        var settings = await LoadSettingsAsync(cancellation);
+        var className = valueType.Name;
 
-        if (SQLSettings.EncryptSettings)
+        var settingItems = value?.ToSettingItems(new List<string> { className }, Builder.Services.BuildServiceProvider().GetService<ILogger>());
+
+        if (settingItems is null)
         {
-            value = AESThenHMAC.SimpleEncryptWithPassword(value, SQLSettings.EncryptionKey ?? "somepassword");
+            return;
         }
 
-        string? command;
-        if (settings is null || !settings.ContainsKey(key))
-        {
-            command = $"INSERT INTO [{SQLSettings.TableName}] ([{SQLSettings.KeyColumnName}], [{SQLSettings.ValueColumnName}]) VALUES ( @Key, @Value )";
-        }
-        else
-        {
-            command = $"UPDATE [{SQLSettings.TableName}] SET [{SQLSettings.ValueColumnName}] = @Value WHERE [{SQLSettings.KeyColumnName}] = @Key";
-        }
+        settingItems.ForEach(async ss => await PersistValue(ss, cancellation));
 
-        using var connection = new SqlConnection(SQLSettings.ConnectionString);
-        using var query = new SqlCommand(command, connection);
-        query.Parameters.Add(new SqlParameter("@Key", key));
-        query.Parameters.Add(new SqlParameter("@Value", value));
-
-        query.Connection.Open();
-
-        _ = await query.ExecuteNonQueryAsync(cancellation);
-
+        await ReloadSettings();
     }
 
     public IChangeToken Watch()
@@ -191,6 +159,41 @@ public class SQLSettingsRepository : IOptionsStorageRepository
         return dic;
     }
 
+    private async Task PersistValue(SettingStorage ss, CancellationToken cancellation = default)
+    {
+        using var connection = new SqlConnection(SQLSettings.ConnectionString);
+        await connection.OpenAsync(cancellation).ConfigureAwait(false);
+        var key = ss.Name;
+        var itemValue = ss.Value;
+
+        var settings = await LoadSettingsAsync(cancellation);
+
+        if (itemValue is null)
+        {
+            return;
+        }
+
+        if (SQLSettings.EncryptSettings && SQLSettings.EncryptionKey is not null)
+        {
+            itemValue = AESThenHMAC.SimpleEncryptWithPassword(itemValue, SQLSettings.EncryptionKey);
+        }
+
+        string? command;
+        if (settings is null || !settings.ContainsKey(key))
+        {
+            command = $"INSERT INTO [{SQLSettings.TableName}] ([{SQLSettings.KeyColumnName}], [{SQLSettings.ValueColumnName}]) VALUES ( @Key, @Value )";
+        }
+        else
+        {
+            command = $"UPDATE [{SQLSettings.TableName}] SET [{SQLSettings.ValueColumnName}] = @Value WHERE [{SQLSettings.KeyColumnName}] = @Key";
+        }
+
+        using var query = new SqlCommand(command, connection);
+        query.Parameters.Add(new SqlParameter("@Key", key));
+        query.Parameters.Add(new SqlParameter("@Value", itemValue));
+
+        await query.ExecuteNonQueryAsync(cancellation).ConfigureAwait(false);
+    }
     private IDictionary<string, string> ReadSettingsFromDB()
     {
         var dic = new Dictionary<string, string>();
