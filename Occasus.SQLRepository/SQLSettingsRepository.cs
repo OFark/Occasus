@@ -33,7 +33,8 @@ public class SQLSettingsRepository : IOptionsStorageRepository
         if (SQLSettings.EncryptSettings && SQLSettings.EncryptionKey?.Length < 12)
         {
             SQLSettings.EncryptSettings = false;
-            MessageStore.Messages.Add("Encryption Disabled: Encryption key must be at least 12 characters");
+            var messageStore = builder.Services.BuildServiceProvider().GetRequiredService<OccasusMessageStore>();
+            messageStore.Add("Encryption Disabled: Encryption key must be at least 12 characters");
         }
     }
 

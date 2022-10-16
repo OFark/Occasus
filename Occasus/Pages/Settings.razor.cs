@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using Occasus.Settings;
 using Occasus.Settings.Interfaces;
 using Occasus.Settings.Models;
 
@@ -7,20 +8,19 @@ namespace Occasus.Pages
 {
     public partial class Settings : IDisposable
     {
-        [Inject]
-        public ISettingService SettingService { get; set; } = default!;
-        [Inject]
-        public ISnackbar Snackbar { get; set; } = default!;
-        [Inject]
-        public IDialogService DialogService { get; set; } = default!;
-        [Inject]
-        public IConfiguration configuration { get; set; } = default!;
+        [Inject] IHostApplicationLifetime AppLifetime { get; set; } = default!;
+        [Inject] public ISettingService SettingService { get; set; } = default!;
+        [Inject] public ISnackbar Snackbar { get; set; } = default!;
+        [Inject] public IDialogService DialogService { get; set; } = default!;
+        [Inject] public IConfiguration Configuration { get; set; } = default!;
+        [Inject] OccasusMessageStore MessageStore { get; set; } = default!;
+        [Parameter] public EventCallback<object> OnChange { get; set; }
 
         private IEnumerable<SettingBox> settings = default!;
 
         private readonly CancellationTokenSource cts = new();
 
-        private string? uiPassword => configuration["OccasusUI:Password"];
+        private string? uiPassword => Configuration["OccasusUI:Password"];
         private string? password;
 
 
@@ -54,9 +54,9 @@ namespace Occasus.Pages
                 StateHasChanged();
             }
 
-            if(firstRender)
+            if (firstRender)
             {
-                await ReloadSettings().ConfigureAwait(false);
+                await DoSettingReload().ConfigureAwait(false);
             }
 
             await base.OnAfterRenderAsync(firstRender);
@@ -78,12 +78,50 @@ namespace Occasus.Pages
 
         private async Task ReloadSettings()
         {
+            bool result = (await DialogService.ShowMessageBox(
+            "Warning",
+            "This will refresh all settings from storage",
+            yesText: "Reload", cancelText: "Cancel") ?? false);
+
+            if (result)
+            {
+                await DoSettingReload();
+
+                Snackbar.Add("Settings have been reloaded", Severity.Info);
+
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        private async Task DoSettingReload()
+        {
+
             await SettingService.ReloadAllSettings(cts.Token).ConfigureAwait(false);
             settings = SettingService.GetSettings();
 
-            Snackbar.Add("Settings have been reloaded", Severity.Info);
-
             await InvokeAsync(StateHasChanged);
+        }
+
+        private const string restartRequiredMessage = "Settings have changed that require an application restart";
+
+        private async Task SomethingHasChanged(object _)
+        {
+            MessageStore.Add(restartRequiredMessage, settings.Any(s => s.RequiresRestart));
+
+            await InvokeAsync(StateHasChanged).ConfigureAwait(false);
+        }
+
+        public async Task FullRestart()
+        {
+            bool? result = await DialogService.ShowMessageBox(
+            "Warning",
+            "This will shutdown the entire application! Make sure the hosting provider will restart it automatically",
+            yesText: "Restart!", cancelText: "Cancel");
+
+            if (result ?? false)
+            {
+                AppLifetime.StopApplication();
+            }
         }
 
         public void Dispose()

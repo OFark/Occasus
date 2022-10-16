@@ -1,5 +1,7 @@
-﻿using MudBlazor;
+﻿using Microsoft.AspNetCore.Components;
+using MudBlazor;
 using MudBlazor.ThemeManager;
+using Occasus.Settings;
 
 namespace Occasus.Shared;
 
@@ -30,6 +32,7 @@ public partial class MainLayout
         }
     };
 
+
     private ThemeManagerTheme _themeManager = new();
     public bool _themeManagerOpen = false;
 
@@ -44,9 +47,11 @@ public partial class MainLayout
         StateHasChanged();
     }
 
+    private IReadOnlyList<string> messages = new List<string>();
+
     protected override void OnInitialized()
     {
-        StateHasChanged();
-        _themeManager.Theme = OccasusTheme;
+        //StateHasChanged();
+        _themeManager.Theme = OccasusTheme;       
     }
 }
