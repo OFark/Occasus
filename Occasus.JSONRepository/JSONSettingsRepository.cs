@@ -12,8 +12,6 @@ namespace Occasus.JSONRepository
     {
         private readonly string filePath;
         private readonly JsonSourceSettings jsonSourceSettings;
-        private CancellationTokenSource? changeCancellationTokenSource;
-        private IChangeToken? changeToken;
 
         public JSONSettingsRepository(WebApplicationBuilder builder, string filePath, Action<JsonSourceSettings>? jsonSourceSettings = null)
         {
@@ -84,10 +82,7 @@ namespace Occasus.JSONRepository
 
             var root = JsonNode.Parse(fileStream, jsonSourceSettings.NodeOptions, jsonSourceSettings.DocumentOptions);
 
-            if (root is null)
-            {
-                root = JsonNode.Parse("{}");
-            }
+            root ??= JsonNode.Parse("{}");
 
             if(root is null) throw new Exception("Json parsing failure");
 
