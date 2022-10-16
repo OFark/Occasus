@@ -1,0 +1,9 @@
+﻿@if (MessageStore.Messages.Count > 0)
+{
+    <MudPaper Elevation="2" Class="mud-theme-warning mb-6 pa-2">
+        @foreach (var message in MessageStore.Messages)
+        {
+            <MudText Typo=Typo.h6>@message</MudText>
+        }
+    </MudPaper>
+}

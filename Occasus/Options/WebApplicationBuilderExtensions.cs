@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using MudBlazor;
 using MudBlazor.Services;
@@ -19,6 +19,8 @@ public static class WebApplicationBuilderExtensions
     private static bool OcassusAssembled;
 
     private static ILogger? logger = null;
+
+    private static readonly OccasusMessageStore MessageStore = new();
 
     private static ILogger CreateLogger(WebApplicationBuilder builder) => builder.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
 
@@ -43,9 +45,11 @@ public static class WebApplicationBuilderExtensions
             });
 
             logger.LogTrace("Adding Transient ISettingService");
-            builder.Services.AddTransient<ISettingService, SettingService>();
+            builder.Services.TryAddTransient<ISettingService, SettingService>();
             logger.LogTrace("Adding Transient IPOCOService");
-            builder.Services.AddTransient<IPOCOService, POCOService>();
+            builder.Services.TryAddTransient<IPOCOService, POCOService>();
+
+            builder.Services.TryAddSingleton<OccasusMessageStore>(MessageStore);
         }
 
         logger.LogInformation("Occasus Assembled");

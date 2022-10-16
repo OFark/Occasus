@@ -1,6 +1,7 @@
 ﻿using Humanizer;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using Occasus.Attributes;
 using Occasus.Helpers;
 using Occasus.Settings;
 using Occasus.Settings.Interfaces;
@@ -8,6 +9,8 @@ using Occasus.Settings.Models;
 using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Reflection;
+using System.Xml.Linq;
 
 namespace Occasus.Pages;
 
@@ -73,22 +76,20 @@ public partial class SettingWrapper
     {
         if (SettingProperty is not null && POCO is not null)
         {
-            var display = Attribute.GetCustomAttribute(SettingProperty.PropertyInfo, typeof(DisplayAttribute), false) as DisplayAttribute;
-            var required = Attribute.GetCustomAttribute(SettingProperty.PropertyInfo, typeof(RequiredAttribute), false) as RequiredAttribute;
+           
             validationAttributes = new CompositeValidationAttribute(Attribute.GetCustomAttributes(SettingProperty.PropertyInfo, typeof(ValidationAttribute), false).Cast<ValidationAttribute>());
 
+            Required = IsRequired(SettingProperty.PropertyInfo, out var message);
+            RequiredMessage = message;
 
-            Required = required is not null;
-            RequiredMessage = required?.ErrorMessage;
-            Label = (display?.Name ?? SettingProperty.PropertyInfo.Name).Humanize();
+            Label = GetLabel(SettingProperty.PropertyInfo);
             NewKey = $"New {Label.Humanize().Singularize()}";
+
             ValueType = SettingProperty.ValueType;
             InputType = SettingProperty.InputAttribute.InputType;
 
             KeyType = SettingProperty.NotNullType.DictionaryKeyType();
             KeyInputType = KeyType?.NonNullableType() == typeof(DateTime) ? InputType.DateTimeLocal : InputType.Text;
-
-
 
             if (SettingProperty.NotNullType.IsEnumerable())
             {
@@ -104,6 +105,27 @@ public partial class SettingWrapper
         }
         base.OnInitialized();
     }
+
+    private static string GetLabel(PropertyInfo propertyInfo) 
+        => $"{(Attribute.GetCustomAttribute(propertyInfo, typeof(DisplayAttribute), false) as DisplayAttribute)?.Name ?? propertyInfo.Name.Humanize(LetterCasing.Title)}{(IsRestartRequired(propertyInfo) ? " !" : "")}";
+
+    private static bool IsRestartRequired(PropertyInfo propertyInfo)
+        => (Attribute.GetCustomAttribute(propertyInfo, typeof(RestartRequiredAttribute), false) as RestartRequiredAttribute) is not null;
+
+    private static bool IsRequired(PropertyInfo propertyInfo, out string? message)
+    {
+        var required= Attribute.GetCustomAttribute(propertyInfo, typeof(RequiredAttribute), false) as RequiredAttribute;
+
+        if (required is not null)
+        {
+            message = required.ErrorMessage;
+            return true;
+        }
+
+        message = null;
+        return false;
+    }
+
     private void AddNewValue()
     {
         _addNewValue = true;

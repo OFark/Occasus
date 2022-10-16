@@ -9,7 +9,7 @@
         {
             @foreach (var setting in settings)
             {
-                <SettingTab Setting=setting Token=cts.Token />
+                <SettingTab Setting=setting Token=cts.Token  OnSave="SomethingHasChanged"/>
             }
 
         }
@@ -25,6 +25,9 @@
             <MudTooltip Text="Clear All Settings">
                 <MudButton StartIcon=@Icons.Rounded.ClearAll Variant="Variant.Outlined" IconColor="Color.Warning" Color="Color.Inherit" OnClick=ClearSettings>Clear All</MudButton>
             </MudTooltip>
+        <MudTooltip Text="Restart the application">
+            <MudButton StartIcon=@Icons.Rounded.Warning Variant="Variant.Outlined" IconColor="Color.Error" Color="Color.Inherit" OnClick=FullRestart>Restart</MudButton>
+        </MudTooltip>
     </MudToolBar>
 
 </MudAppBar>

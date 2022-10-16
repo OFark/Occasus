@@ -1,5 +1,4 @@
-﻿using Humanizer;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
@@ -16,18 +15,16 @@ namespace Occasus.Pages
         private EditForm? form = default!;
         private bool formIsValid;
         ValidateOptionsResult? validateOptionsResult;
-        public string CardTitle => Title ?? Setting.Type.Name.Humanize();
+        public string CardTitle => Setting.HumanTitle;
         [Inject] public IJSRuntime JS { get; set; } = default!;
         [Inject] public ISnackbar Snackbar { get; set; } = default!;
-        [Parameter]
-        public Action<object?>? OnSave { get; set; }
+
+        [Parameter] public EventCallback<object> OnSave { get; set; }
 
         [Parameter, EditorRequired]
         public SettingBox Setting { get; set; } = default!;
 
-        [Inject] public ISettingService SettingService { get; set; } = default!;
-        [Parameter]
-        public string? Title { get; set; }
+        [Inject] public ISettingService SettingService { get; set; } = default!;        
 
         [Parameter]
         public CancellationToken Token { get; set; } = new CancellationTokenSource().Token;
@@ -55,12 +52,13 @@ namespace Occasus.Pages
 
             validateOptionsResult = validation;
 
+            await OnSave.InvokeAsync();
             await InvokeAsync(StateHasChanged);
         }
-        private void Save(object? x)
+        private async Task Save(object? x)
         {
-            OnSave?.Invoke(x);
-            StateHasChanged();
+            await OnSave.InvokeAsync(x);
+            await InvokeAsync(StateHasChanged);
         }
 
         private async Task Clear()

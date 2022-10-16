@@ -9,6 +9,8 @@ namespace Occasus.SQLRepository
     {
         public static IOptionsStorageRepository UseOptionsFromSQL(this WebApplicationBuilder builder, Action<SQLSourceSettings> settings)
         {
+            builder.UseOccasus();
+
             var storageRepository = new SQLSettingsRepository(builder, settings);
 
             builder.AddConfigurationSource(storageRepository);

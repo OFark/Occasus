@@ -1,5 +1,8 @@
-﻿namespace WebTest.TestModels
+﻿using Occasus.Attributes;
+
+namespace WebTest.TestModels
 {
+    [RestartRequired]
     public record TestJson
     {
         public string AppName { get; set; }
