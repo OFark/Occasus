@@ -23,13 +23,37 @@
 
   <ItemGroup>
     <Content Remove="compilerconfig.json" />
+    <Content Remove="wwwroot\android-chrome-192x192.png" />
+    <Content Remove="wwwroot\android-chrome-256x256.png" />
+    <Content Remove="wwwroot\apple-touch-icon.png" />
+    <Content Remove="wwwroot\browserconfig.xml" />
     <Content Remove="wwwroot\css\occasus.scss" />
+    <Content Remove="wwwroot\favicon-16x16.png" />
+    <Content Remove="wwwroot\favicon-32x32.png" />
+    <Content Remove="wwwroot\favicon.ico" />
+    <Content Remove="wwwroot\mstile-144x144.png" />
+    <Content Remove="wwwroot\mstile-150x150.png" />
+    <Content Remove="wwwroot\mstile-310x310.png" />
+    <Content Remove="wwwroot\safari-pinned-tab.svg" />
     <Content Remove="wwwroot\scripts\Interop.js" />
+    <Content Remove="wwwroot\site.webmanifest" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="wwwroot\android-chrome-192x192.png" />
+    <EmbeddedResource Include="wwwroot\android-chrome-256x256.png" />
+    <EmbeddedResource Include="wwwroot\apple-touch-icon.png" />
+    <EmbeddedResource Include="wwwroot\browserconfig.xml" />
     <EmbeddedResource Include="wwwroot\css\occasus.min.css" />
+    <EmbeddedResource Include="wwwroot\favicon-16x16.png" />
+    <EmbeddedResource Include="wwwroot\favicon-32x32.png" />
+    <EmbeddedResource Include="wwwroot\favicon.ico" />
+    <EmbeddedResource Include="wwwroot\mstile-144x144.png" />
+    <EmbeddedResource Include="wwwroot\mstile-150x150.png" />
+    <EmbeddedResource Include="wwwroot\mstile-310x310.png" />
+    <EmbeddedResource Include="wwwroot\safari-pinned-tab.svg" />
     <EmbeddedResource Include="wwwroot\scripts\Interop.js" />
+    <EmbeddedResource Include="wwwroot\site.webmanifest" />
   </ItemGroup>
 
   <ItemGroup>
