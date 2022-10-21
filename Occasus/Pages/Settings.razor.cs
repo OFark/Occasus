@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using MudBlazor;
 using Occasus.Settings;
 using Occasus.Settings.Interfaces;
@@ -14,6 +15,7 @@ namespace Occasus.Pages
         [Inject] public IDialogService DialogService { get; set; } = default!;
         [Inject] public IConfiguration Configuration { get; set; } = default!;
         [Inject] OccasusMessageStore MessageStore { get; set; } = default!;
+        [Inject] ProtectedSessionStorage ProtectedSessionStore { get; set; } = default!;
         [Parameter] public EventCallback<object> OnChange { get; set; }
 
         private IEnumerable<SettingBox> settings = default!;
@@ -23,6 +25,7 @@ namespace Occasus.Pages
         private string? uiPassword => Configuration["OccasusUI:Password"];
         private string? password;
 
+        private bool authenticated => uiPassword == password;
 
 
         protected override async Task OnInitializedAsync()
@@ -37,6 +40,11 @@ namespace Occasus.Pages
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            if(firstRender && !string.IsNullOrWhiteSpace(uiPassword))
+            {
+                await InvokeAsync(async() => password = (await ProtectedSessionStore.GetAsync<string>(nameof(password)).ConfigureAwait(false)).Value);
+            }
+
             if (!string.IsNullOrWhiteSpace(uiPassword) && uiPassword != password)
             {
                 var dialog = DialogService.Show<PasswordDialog>("Password");
@@ -44,7 +52,12 @@ namespace Occasus.Pages
 
                 if (!result.Cancelled)
                 {
-                    password = result.Data.ToString();
+
+                    if (result.Data?.ToString() is string pw && !string.IsNullOrWhiteSpace(pw))
+                    {
+                        password = pw;
+                        await InvokeAsync(async () => await ProtectedSessionStore.SetAsync("password", password).ConfigureAwait(false));
+                    }
                 }
 
                 if (string.IsNullOrWhiteSpace(uiPassword) || uiPassword == password)
@@ -109,6 +122,12 @@ namespace Occasus.Pages
             MessageStore.Add(restartRequiredMessage, settings.Any(s => s.RequiresRestart));
 
             await InvokeAsync(StateHasChanged).ConfigureAwait(false);
+        }
+
+        public async Task Logout()
+        {
+            await ProtectedSessionStore.DeleteAsync(nameof(password));
+            password = null;
         }
 
         public async Task FullRestart()

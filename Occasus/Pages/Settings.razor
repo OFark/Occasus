@@ -2,33 +2,43 @@
 
 <PageTitle>Occasus</PageTitle>
 
-<MudContainer MaxWidth=MaxWidth.ExtraLarge Class="py-6 pb-12" Style="margin-bottom: var(--mud-appbar-height);">
+@if (authenticated)
+{
 
-    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
-        @if (settings is not null)
-        {
-            @foreach (var setting in settings)
+    <MudContainer MaxWidth=MaxWidth.ExtraLarge Class="py-6 pb-12" Style="margin-bottom: var(--mud-appbar-height);">
+
+        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
+            @if (settings is not null)
             {
-                <SettingTab Setting=setting Token=cts.Token  OnSave="SomethingHasChanged"/>
-            }
+                @foreach (var setting in settings)
+                {
+                    <SettingTab Setting=setting Token=cts.Token OnSave="SomethingHasChanged" />
+                }
 
-        }
-    </MudTabs>
-</MudContainer>
-<MudAppBar Bottom=true Color=Color.Tertiary>
-    <MudSpacer/>
-    <MudToolBar DisableGutters=true Class="gap-3">
-        <MudTooltip Text="Reload Settings">
+            }
+        </MudTabs>
+    </MudContainer>
+    <MudAppBar Bottom=true Color=Color.Tertiary>
+        <MudSpacer />
+        <MudToolBar DisableGutters=true Class="gap-3">
+            <MudTooltip Text="Reload Settings">
                 <MudButton StartIcon=@Icons.Rounded.Refresh Variant="Variant.Outlined" IconColor="Color.Info" Color="Color.Inherit" OnClick=ReloadSettings>Reload</MudButton>
             </MudTooltip>
-        
+
             <MudTooltip Text="Clear All Settings">
                 <MudButton StartIcon=@Icons.Rounded.ClearAll Variant="Variant.Outlined" IconColor="Color.Warning" Color="Color.Inherit" OnClick=ClearSettings>Clear All</MudButton>
             </MudTooltip>
-        <MudTooltip Text="Restart the application">
-            <MudButton StartIcon=@Icons.Rounded.Warning Variant="Variant.Outlined" IconColor="Color.Error" Color="Color.Inherit" OnClick=FullRestart>Restart</MudButton>
-        </MudTooltip>
-    </MudToolBar>
+            @if (!string.IsNullOrWhiteSpace(uiPassword))
+            {
+                <MudTooltip Text="Logout">
+                    <MudButton StartIcon=@Icons.Rounded.Logout Variant="Variant.Outlined" IconColor="Color.Surface" Color="Color.Inherit" OnClick=Logout>Logout</MudButton>
+                </MudTooltip>
+            }
+            <MudTooltip Text="Restart the application">
+                <MudButton StartIcon=@Icons.Rounded.Warning Variant="Variant.Outlined" IconColor="Color.Error" Color="Color.Inherit" OnClick=FullRestart>Restart</MudButton>
+            </MudTooltip>
+        </MudToolBar>
 
-</MudAppBar>
+    </MudAppBar>
 
+}
