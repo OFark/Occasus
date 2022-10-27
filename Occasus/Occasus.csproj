@@ -4,6 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <StaticWebAssetBasePath>occasus</StaticWebAssetBasePath>
     <IsPackable>true</IsPackable>
     <Version>6.0.0</Version>
     <Authors>OFark</Authors>
@@ -27,7 +28,6 @@
     <Content Remove="wwwroot\android-chrome-256x256.png" />
     <Content Remove="wwwroot\apple-touch-icon.png" />
     <Content Remove="wwwroot\browserconfig.xml" />
-    <Content Remove="wwwroot\css\occasus.scss" />
     <Content Remove="wwwroot\favicon-16x16.png" />
     <Content Remove="wwwroot\favicon-32x32.png" />
     <Content Remove="wwwroot\favicon.ico" />
@@ -59,6 +59,7 @@
   <ItemGroup>
     <PackageReference Include="Humanizer.Core" Version="2.14.1" />
     <PackageReference Include="LanguageExt.Core" Version="4.2.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.10" />
     <PackageReference Include="MudBlazor" Version="6.0.16" />
     <PackageReference Include="MudBlazor.ThemeManager" Version="1.0.7" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.5.113">
