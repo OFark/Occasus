@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Occasus.Settings;
 
-namespace Occasus.Shared
+namespace Occasus.BlazorUI.Shared
 {
     public partial class Messages
     {

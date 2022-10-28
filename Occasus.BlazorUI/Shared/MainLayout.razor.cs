@@ -3,7 +3,7 @@ using MudBlazor;
 using MudBlazor.ThemeManager;
 using Occasus.Settings;
 
-namespace Occasus.Shared;
+namespace Occasus.BlazorUI.Shared;
 
 public partial class MainLayout
 {
@@ -17,7 +17,7 @@ public partial class MainLayout
             TextPrimary = "#333",
             AppbarBackground = "#ffffff",
             AppbarText = "#10095a",
-            
+
         },
 
         LayoutProperties = new LayoutProperties()
@@ -52,6 +52,6 @@ public partial class MainLayout
     protected override void OnInitialized()
     {
         //StateHasChanged();
-        _themeManager.Theme = OccasusTheme;       
+        _themeManager.Theme = OccasusTheme;
     }
 }

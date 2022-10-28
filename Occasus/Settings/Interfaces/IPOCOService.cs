@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Occasus.Settings.Interfaces;
 
-internal interface IPOCOService
+public interface IPOCOService
 {
     Option<object> AddValue(object? POCO, SettingProperty SettingProperty);
     Option<object> ChangeDictionaryItem(object? POCO, PropertyInfo propertyInfo, object? value, object key);

@@ -7,7 +7,7 @@ using Occasus.Settings.Interfaces;
 using Occasus.Settings.Models;
 using System.Text.Json;
 
-namespace Occasus.Pages
+namespace Occasus.BlazorUI.Pages
 {
     public partial class SettingTab
     {
@@ -24,7 +24,7 @@ namespace Occasus.Pages
         [Parameter, EditorRequired]
         public SettingBox Setting { get; set; } = default!;
 
-        [Inject] public ISettingService SettingService { get; set; } = default!;        
+        [Inject] public ISettingService SettingService { get; set; } = default!;
 
         [Parameter]
         public CancellationToken Token { get; set; } = new CancellationTokenSource().Token;

@@ -14,7 +14,7 @@
                 OnChange?.Invoke(Messages, new());
             }
 
-            if(!add && Messages.Contains(message))
+            if (!add && Messages.Contains(message))
             {
                 _messages.Remove(message);
                 OnChange?.Invoke(Messages, new());

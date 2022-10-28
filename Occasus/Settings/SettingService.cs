@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Occasus.Settings.Interfaces;
 using Occasus.Settings.Models;
 
@@ -76,8 +78,8 @@ namespace Occasus.Settings
 
             var valid = method?.Invoke(validator, new object?[] { string.Empty, setting.Value });
 
-            return  valid ?? ValidateOptionsResult.Skip;
-            
+            return valid ?? ValidateOptionsResult.Skip;
+
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Occasus.Repository.Interfaces;
+﻿using Microsoft.Extensions.Configuration;
+using Occasus.Repository.Interfaces;
 
 namespace Occasus.Options
 {

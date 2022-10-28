@@ -4,7 +4,7 @@ using MudBlazor;
 using Occasus.Helpers;
 using System.ComponentModel.DataAnnotations;
 
-namespace Occasus.Pages;
+namespace Occasus.BlazorUI.Pages;
 
 public partial class SettingEditor
 {

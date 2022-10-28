@@ -4,15 +4,14 @@ using MudBlazor;
 using Occasus.Attributes;
 using Occasus.Helpers;
 using Occasus.Settings;
-using Occasus.Settings.Interfaces;
 using Occasus.Settings.Models;
 using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Reflection;
-using System.Xml.Linq;
+using Occasus.Settings.Interfaces;
 
-namespace Occasus.Pages;
+namespace Occasus.BlazorUI.Pages;
 
 public partial class SettingWrapper
 {
@@ -76,7 +75,7 @@ public partial class SettingWrapper
     {
         if (SettingProperty is not null && POCO is not null)
         {
-           
+
             validationAttributes = new CompositeValidationAttribute(Attribute.GetCustomAttributes(SettingProperty.PropertyInfo, typeof(ValidationAttribute), false).Cast<ValidationAttribute>());
 
             Required = IsRequired(SettingProperty.PropertyInfo, out var message);
@@ -106,15 +105,15 @@ public partial class SettingWrapper
         base.OnInitialized();
     }
 
-    private static string GetLabel(PropertyInfo propertyInfo) 
+    private static string GetLabel(PropertyInfo propertyInfo)
         => $"{(Attribute.GetCustomAttribute(propertyInfo, typeof(DisplayAttribute), false) as DisplayAttribute)?.Name ?? propertyInfo.Name.Humanize(LetterCasing.Title)}{(IsRestartRequired(propertyInfo) ? " !" : "")}";
 
     private static bool IsRestartRequired(PropertyInfo propertyInfo)
-        => (Attribute.GetCustomAttribute(propertyInfo, typeof(RestartRequiredAttribute), false) as RestartRequiredAttribute) is not null;
+        => Attribute.GetCustomAttribute(propertyInfo, typeof(RestartRequiredAttribute), false) as RestartRequiredAttribute is not null;
 
     private static bool IsRequired(PropertyInfo propertyInfo, out string? message)
     {
-        var required= Attribute.GetCustomAttribute(propertyInfo, typeof(RequiredAttribute), false) as RequiredAttribute;
+        var required = Attribute.GetCustomAttribute(propertyInfo, typeof(RequiredAttribute), false) as RequiredAttribute;
 
         if (required is not null)
         {

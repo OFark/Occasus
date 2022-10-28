@@ -1,7 +1,7 @@
 using Occasus.JSONRepository;
 using Occasus.Options;
 using Occasus.SQLRepository;
-using Occasus.UI;
+using Occasus.BlazorUI;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using TestClassLibrary.TestModels;

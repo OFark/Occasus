@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 using Occasus.Settings.Interfaces;
 using Occasus.Settings.Models;
 
-namespace Occasus.Pages
+namespace Occasus.BlazorUI.Pages
 {
     public partial class SettingCard
     {

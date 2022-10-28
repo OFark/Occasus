@@ -1,9 +1,10 @@
 ﻿using Humanizer;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Occasus.Attributes;
 using Occasus.Converters;
 using Occasus.Helpers;
 using Occasus.Repository.Interfaces;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Text.Json;
@@ -17,13 +18,12 @@ namespace Occasus.Settings.Models
 
         private readonly IOptionsStorageRepository? Repository;
         private object _value;
-        private int startingHash;
         private int? restartHash;
-
+        private int startingHash;
         public SettingBox(Type type, IOptionsStorageRepository? repository, object? value = null)
         {
             Type = type;
-            this.Repository = repository;
+            Repository = repository;
             _value = value ?? (type.IsArray ? Array.CreateInstance(type.GetElementType()!, 0) : Activator.CreateInstance(type)!);
 
             HumanTitle = GetTitle(type);
@@ -35,15 +35,14 @@ namespace Occasus.Settings.Models
 
         }
 
-        internal string HumanTitle { get; }
+        public IEnumerable<SettingProperty> EditableProperties => Type.GetOptionableProperties().Select(x => new SettingProperty(x));
+        public bool HasChanged => JsonSerializer.Serialize(Value, jsonSerializerOptions).GetHashCode() != startingHash;
+        public string HumanTitle { get; }
+        public bool IsDefault => Value == Activator.CreateInstance(Type);
+        public bool RequiresRestart { get; private set; }
+        public Type Type { get; set; }
 
-        internal IEnumerable<SettingProperty> EditableProperties => Type.GetOptionableProperties().Select(x => new SettingProperty(x));
-        internal bool HasChanged => JsonSerializer.Serialize(Value, jsonSerializerOptions).GetHashCode() != startingHash;
-        internal bool HasRepository => Repository is not null;
-        internal bool IsDefault => Value == Activator.CreateInstance(Type);
-        internal bool RequiresRestart { get; private set; }
-        internal Type Type { get; set; }
-        internal object Value
+        public object Value
         {
             get => _value; private set
             {
@@ -52,7 +51,8 @@ namespace Occasus.Settings.Models
                 restartHash ??= GetRestartRequiredHash();
             }
         }
-        internal async Task ClearSettingStorageAsync(CancellationToken cancellation = default)
+        internal bool HasRepository => Repository is not null;
+        public async Task ClearSettingStorageAsync(CancellationToken cancellation = default)
         {
             if (Repository is null)
             {
@@ -60,6 +60,27 @@ namespace Occasus.Settings.Models
             }
 
             await Repository.ClearSettings(Type.Name, cancellation).ConfigureAwait(false);
+        }
+
+        public async Task ReloadSettingsFromStorageAsync(CancellationToken cancellation = default)
+        {
+            if (Repository is null)
+            {
+                throw new InvalidOperationException("Setting has no repository");
+            }
+
+            await Repository.ReloadSettings(cancellation).ConfigureAwait(false);
+        }
+
+        public void SetValue(object newValue)
+        {
+            if (newValue.GetType() == Type)
+            {
+                _value = newValue;
+                return;
+            }
+
+            throw new InvalidOperationException("Cannot set value Types do not match");
         }
 
         internal object LoadValueFromConfiguration(IConfiguration config)
@@ -82,50 +103,6 @@ namespace Occasus.Settings.Models
             SetHash();
             RequiresRestart = restartHash != GetRestartRequiredHash();
         }
-
-        internal async Task ReloadSettingsFromStorageAsync(CancellationToken cancellation = default)
-        {
-            if (Repository is null)
-            {
-                throw new InvalidOperationException("Setting has no repository");
-            }
-
-            await Repository.ReloadSettings(cancellation).ConfigureAwait(false);
-        }
-
-        internal void SetValue(object newValue)
-        {
-            if (newValue.GetType() == Type)
-            {
-                _value = newValue;
-                return;
-            }
-
-            throw new InvalidOperationException("Cannot set value Types do not match");
-        }
-        private void SetHash()
-        {
-            startingHash = JsonSerializer.Serialize(Value, jsonSerializerOptions).GetHashCode();
-        }
-
-
-        private int GetRestartRequiredHash()
-        {
-            var restartRequiredAttribute = Attribute.GetCustomAttribute(Type, typeof(RestartRequiredAttribute)) is not null;
-
-            if(restartRequiredAttribute)
-            {
-                return JsonSerializer.Serialize(Value, jsonSerializerOptions).GetHashCode();
-            }
-
-            var value = JsonSerializer.Deserialize(JsonSerializer.Serialize(Value), Type);
-
-            value = NullifyNotRestartRequiredProperties(value!);
-
-            return JsonSerializer.Serialize(value, new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault | JsonIgnoreCondition.WhenWritingNull }).GetHashCode();
-        }
-        
-
         private static object NullifyNotRestartRequiredProperties(object value)
         {
             var properties = value.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -141,8 +118,8 @@ namespace Occasus.Settings.Models
 
                 var propValue = prop.GetValue(value);
 
-                if (propValue is not null && 
-                    !prop.PropertyType.IsSimple() && 
+                if (propValue is not null &&
+                    !prop.PropertyType.IsSimple() &&
                     !prop.PropertyType.IsCollection() &&
                     !prop.PropertyType.IsDictionary() &&
                     prop.PropertyType.GetProperties(BindingFlags.Public | BindingFlags.Instance).Any())
@@ -157,8 +134,27 @@ namespace Occasus.Settings.Models
             return value;
         }
 
+        private int GetRestartRequiredHash()
+        {
+            var restartRequiredAttribute = Attribute.GetCustomAttribute(Type, typeof(RestartRequiredAttribute)) is not null;
+
+            if (restartRequiredAttribute)
+            {
+                return JsonSerializer.Serialize(Value, jsonSerializerOptions).GetHashCode();
+            }
+
+            var value = JsonSerializer.Deserialize(JsonSerializer.Serialize(Value), Type);
+
+            value = NullifyNotRestartRequiredProperties(value!);
+
+            return JsonSerializer.Serialize(value, new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault | JsonIgnoreCondition.WhenWritingNull }).GetHashCode();
+        }
 
         private string GetTitle(Type type) => (Attribute.GetCustomAttribute(type, typeof(DisplayAttribute)) as DisplayAttribute)?.Name ?? type.Name.Humanize(LetterCasing.Title);
 
+        private void SetHash()
+        {
+            startingHash = JsonSerializer.Serialize(Value, jsonSerializerOptions).GetHashCode();
+        }
     }
 }

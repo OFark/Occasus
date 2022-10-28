@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Primitives;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Primitives;
 using Occasus.Repository.Interfaces;
 using System.Diagnostics;
 

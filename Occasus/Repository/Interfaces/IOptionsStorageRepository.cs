@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Primitives;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Primitives;
 
 namespace Occasus.Repository.Interfaces;
 

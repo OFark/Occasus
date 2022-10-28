@@ -5,7 +5,7 @@ using Occasus.Settings;
 using Occasus.Settings.Interfaces;
 using Occasus.Settings.Models;
 
-namespace Occasus.Pages
+namespace Occasus.BlazorUI.Pages
 {
     public partial class Settings : IDisposable
     {
@@ -40,9 +40,9 @@ namespace Occasus.Pages
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if(firstRender && !string.IsNullOrWhiteSpace(uiPassword))
+            if (firstRender && !string.IsNullOrWhiteSpace(uiPassword))
             {
-                await InvokeAsync(async() => password = (await ProtectedSessionStore.GetAsync<string>(nameof(password)).ConfigureAwait(false)).Value);
+                await InvokeAsync(async () => password = (await ProtectedSessionStore.GetAsync<string>(nameof(password)).ConfigureAwait(false)).Value);
             }
 
             if (!string.IsNullOrWhiteSpace(uiPassword) && uiPassword != password)
@@ -91,10 +91,10 @@ namespace Occasus.Pages
 
         private async Task ReloadSettings()
         {
-            bool result = (await DialogService.ShowMessageBox(
+            bool result = await DialogService.ShowMessageBox(
             "Warning",
             "This will refresh all settings from storage",
-            yesText: "Reload", cancelText: "Cancel") ?? false);
+            yesText: "Reload", cancelText: "Cancel") ?? false;
 
             if (result)
             {

@@ -1,5 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc.ApplicationParts;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MudBlazor;
 using MudBlazor.Services;
@@ -22,7 +26,7 @@ public static class WebApplicationBuilderExtensions
 
     private static readonly OccasusMessageStore MessageStore = new();
 
-    private static ILogger CreateLogger(WebApplicationBuilder builder) => builder.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
+    private static ILogger CreateLogger(WebApplicationBuilder builder) => builder.Services.BuildServiceProvider().GetRequiredService<ILogger<WebApplicationBuilder>>();
 
     public static WebApplicationBuilder UseOccasus(this WebApplicationBuilder builder)
     {

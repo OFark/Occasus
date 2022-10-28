@@ -1,17 +1,17 @@
 ﻿using Microsoft.Extensions.FileProviders;
 using System.Reflection;
 
-namespace Occasus.UI;
+namespace Occasus.BlazorUI;
 
 public static class WebApplicationExtensions
 {
 
     private static Assembly ThisAssembly => Assembly.GetAssembly(typeof(WebApplicationExtensions))!;
-    
+
     private static ILogger? logger = null;
     private static ILogger CreateLogger(IServiceProvider services) => services.GetRequiredService<ILogger<Program>>();
 
-    
+
     public static void UseOccasusUI(this WebApplication app, string? uiPassword = null)
     {
         logger ??= CreateLogger(app.Services);
@@ -25,7 +25,7 @@ public static class WebApplicationExtensions
         });
 
         app.UseStaticFiles("/occasus");
-        
+
 
         if (!string.IsNullOrWhiteSpace(uiPassword))
         {

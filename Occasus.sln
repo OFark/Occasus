@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Occasus", "Occasus\Occasus.csproj", "{2B117CF5-BEF8-43C6-AA81-4D78786A9365}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Occasus.SQLRepository", "Occasus.SQLRepository\Occasus.SQLRepository.csproj", "{93962A05-D498-43D0-81F4-DF672FD621DE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B187A811-0FAE-4FE6-89BB-9A9C6108FC5B}"
@@ -18,9 +16,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Occasus.JSONRepository", "O
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APITest", "APITest\APITest.csproj", "{C169930B-2CC7-49A8-9B79-8D859BF7FB36}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorAppTest", "BlazorAppTest\BlazorAppTest.csproj", "{31D6AC2A-C2A2-4919-A91A-C49BD6CCBBC0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorAppTest", "BlazorAppTest\BlazorAppTest.csproj", "{31D6AC2A-C2A2-4919-A91A-C49BD6CCBBC0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestClassLibrary", "TestClassLibrary\TestClassLibrary.csproj", "{A0775A3B-21C6-4CA2-8D18-E006282B5A6B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestClassLibrary", "TestClassLibrary\TestClassLibrary.csproj", "{A0775A3B-21C6-4CA2-8D18-E006282B5A6B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Occasus.BlazorUI", "Occasus.BlazorUI\Occasus.BlazorUI.csproj", "{8B27CF25-168B-47CE-9F03-8A28D8E5BFA6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Occasus", "Occasus\Occasus.csproj", "{2C290E3B-82A0-4C7C-B8A9-74B2094ACAB8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,10 +30,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2B117CF5-BEF8-43C6-AA81-4D78786A9365}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2B117CF5-BEF8-43C6-AA81-4D78786A9365}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2B117CF5-BEF8-43C6-AA81-4D78786A9365}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2B117CF5-BEF8-43C6-AA81-4D78786A9365}.Release|Any CPU.Build.0 = Release|Any CPU
 		{93962A05-D498-43D0-81F4-DF672FD621DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{93962A05-D498-43D0-81F4-DF672FD621DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93962A05-D498-43D0-81F4-DF672FD621DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -52,6 +50,14 @@ Global
 		{A0775A3B-21C6-4CA2-8D18-E006282B5A6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A0775A3B-21C6-4CA2-8D18-E006282B5A6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A0775A3B-21C6-4CA2-8D18-E006282B5A6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B27CF25-168B-47CE-9F03-8A28D8E5BFA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B27CF25-168B-47CE-9F03-8A28D8E5BFA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B27CF25-168B-47CE-9F03-8A28D8E5BFA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B27CF25-168B-47CE-9F03-8A28D8E5BFA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C290E3B-82A0-4C7C-B8A9-74B2094ACAB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C290E3B-82A0-4C7C-B8A9-74B2094ACAB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C290E3B-82A0-4C7C-B8A9-74B2094ACAB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C290E3B-82A0-4C7C-B8A9-74B2094ACAB8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
