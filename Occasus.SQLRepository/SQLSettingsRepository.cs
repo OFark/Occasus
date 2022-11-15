@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Occasus.Helpers;
+using Occasus.Options;
 using Occasus.Repository.Interfaces;
 using Occasus.Settings;
 using Occasus.Settings.Models;
@@ -19,12 +20,11 @@ public class SQLSettingsRepository : IOptionsStorageRepository
     private IChangeToken? changeToken;
 
 
-    public SQLSettingsRepository(WebApplicationBuilder builder, Action<SQLSourceSettings> settings) : this(builder.Services, builder.Configuration, settings)
+    public SQLSettingsRepository(WebApplicationBuilder builder, Action<SQLSourceSettings> settings) : this(builder.Services, settings)
     { }
-    public SQLSettingsRepository(IServiceCollection services, IConfiguration configuration, Action<SQLSourceSettings> settings)
+    public SQLSettingsRepository(IServiceCollection services, Action<SQLSourceSettings> settings)
     {
         Services = services;
-        Configuration = configuration;
 
         SQLSettings = new();
 
@@ -47,7 +47,6 @@ public class SQLSettingsRepository : IOptionsStorageRepository
     { }
 
     public IServiceCollection Services { get; }
-    public IConfiguration Configuration { get; }
     public SQLSourceSettings SQLSettings { get; }
 
     private string CheckTableExistsQuery => $"SELECT COUNT(*) FROM information_schema.TABLES WHERE (TABLE_NAME = '{SQLSettings.TableName}')";
@@ -235,5 +234,13 @@ public class SQLSettingsRepository : IOptionsStorageRepository
         }
 
         return dic;
+    }
+
+    public void AddConfigurationSource(IServiceCollection services, IConfigurationBuilder configuration)
+    {
+        if(services.AddConfigurationSource(this))
+        { 
+            configuration.AddOccasusConfiguration(this);
+        }
     }
 }

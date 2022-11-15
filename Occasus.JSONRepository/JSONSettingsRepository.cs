@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Occasus.Options;
 
 namespace Occasus.JSONRepository
 {
@@ -14,20 +15,19 @@ namespace Occasus.JSONRepository
         private readonly string filePath;
         private readonly JsonSourceSettings jsonSourceSettings;
 
-        public JSONSettingsRepository(WebApplicationBuilder builder, string filePath, Action<JsonSourceSettings>? jsonSourceSettings = null) : this(builder.Services, builder.Configuration, filePath, jsonSourceSettings) 
+        public JSONSettingsRepository(WebApplicationBuilder builder, string filePath, Action<JsonSourceSettings>? jsonSourceSettings = null) : this(builder.Services, filePath, jsonSourceSettings) 
         { }
 
-        public JSONSettingsRepository(IServiceCollection services, IConfigurationRoot configuration, string filePath, Action<JsonSourceSettings>? jsonSourceSettings = null)
+        public JSONSettingsRepository(IServiceCollection services, string filePath, Action<JsonSourceSettings>? jsonSourceSettings = null)
         {
             Services = services;
-            Configuration = configuration;
             this.filePath = filePath;
             this.jsonSourceSettings = new(filePath);
             jsonSourceSettings?.Invoke(this.jsonSourceSettings);
         }
 
         public IServiceCollection Services { get; }
-        public IConfiguration Configuration { get; }
+
         public async Task ClearSettings(string? classname = null, CancellationToken cancellation = default)
         {
             if (!File.Exists(filePath))
@@ -78,7 +78,6 @@ namespace Occasus.JSONRepository
 
         public Task ReloadSettings(CancellationToken cancellation = default)
         {
-            ((IConfigurationRoot)Configuration).Reload();
             return Task.CompletedTask;
         }
 
@@ -114,6 +113,20 @@ namespace Occasus.JSONRepository
             await fileStream.FlushAsync(cancellation).ConfigureAwait(false);
         }
 
-        public IChangeToken Watch() => Configuration.GetReloadToken();
+        public IChangeToken Watch()
+        {
+            var changeCancellationTokenSource = new CancellationTokenSource();
+            var changeToken = new CancellationChangeToken(changeCancellationTokenSource.Token);
+
+            return changeToken;
+        }
+
+        public void AddConfigurationSource(IServiceCollection services, IConfigurationBuilder configuration)
+        {
+            if (services.AddConfigurationSource(this))
+            {
+                configuration.AddJsonFile(filePath, false, true);
+            }
+        }
     }
 }

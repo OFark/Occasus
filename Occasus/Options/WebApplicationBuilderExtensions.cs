@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Humanizer.Configuration;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +13,7 @@ using Occasus.Repository.Interfaces;
 using Occasus.Settings;
 using Occasus.Settings.Interfaces;
 using System.Reflection;
+using static System.Collections.Specialized.BitVector32;
 
 namespace Occasus.Options;
 
@@ -71,38 +73,43 @@ public static class WebApplicationBuilderExtensions
     public static OptionsBuilder<T> AddOptionsBuilder<T>(this IOptionsStorageRepository storageRepository) where T : class, new()
     {
         var services = storageRepository.Services;
-        var configuration = storageRepository.Configuration;
-        
+
         logger ??= CreateLogger(services);
 
         logger.LogInformation("Adding {classname} to the Setting Store", typeof(T).Name);
         SettingsStore.Add<T>(storageRepository);
 
         return services.AddOptions<T>()
-            .Bind(configuration.GetSection(typeof(T).Name));
+            .Configure<IConfiguration>((settings, config) =>
+            {
+                config.GetSection(typeof(T).Name).Bind(settings);
+            });
     }
 
     public static IOptionsStorageRepository AddOptions<T>(this IOptionsStorageRepository storageRepository) where T : class, new()
     {
         var services = storageRepository.Services;
-        var configuration = storageRepository.Configuration;
 
         logger ??= CreateLogger(services);
 
         logger.LogInformation("Adding {classname} to the Setting Store", typeof(T).Name);
         SettingsStore.Add<T>(storageRepository);
 
-        services.AddOptions<T>().Bind(configuration.GetSection(typeof(T).Name));
+        services.AddOptions<T>()
+            .Configure<IConfiguration>((settings, config) =>
+            {
+                config.GetSection(typeof(T).Name).Bind(settings);
+            });
 
         return storageRepository;
     }
 
-    public static void AddConfigurationSource(this WebApplicationBuilder builder, IOptionsStorageRepository storageRepository, bool bypassRegistration = false)
+    public static bool AddConfigurationSource(this WebApplicationBuilder builder, IOptionsStorageRepository storageRepository)
     {
-        builder.Services.AddConfigurationSource(builder.Configuration, storageRepository, bypassRegistration);
+        return builder.Services.AddConfigurationSource(storageRepository);
     }
 
-    public static void AddConfigurationSource(this IServiceCollection services, IConfigurationBuilder configuration, IOptionsStorageRepository storageRepository, bool bypassRegistration = false)
+    public static bool AddConfigurationSource(this IServiceCollection services, IOptionsStorageRepository storageRepository)
     {
         logger ??= CreateLogger(services);
 
@@ -111,16 +118,16 @@ public static class WebApplicationBuilderExtensions
         var respositoryname = storageRepository.GetType().Name;
         if (!SettingsStore.ActiveRepositories.Contains(storageRepository))
         {
-            if (!bypassRegistration)
-            {
-                logger.LogInformation("Adding {respositoryname} to the Configuration source", respositoryname);
-                configuration.Add<OccasusConfigurationSource>(source => source.StorageRepository = storageRepository);
-            }
             SettingsStore.ActiveRepositories.Add(storageRepository);
+            return true;
         }
-        else
-        {
-            logger.LogInformation("Skipped adding {respositoryname} to the Configuration Store, this repository is already in the store.", respositoryname);
-        }
+
+        logger.LogInformation("Skipped adding {respositoryname} to the Configuration Store, this repository is already in the store.", respositoryname);
+        return false;
+    }
+
+    public static void AddOccasusConfiguration(this IConfigurationBuilder configuration, IOptionsStorageRepository storageRepository)
+    {
+        configuration.Add<OccasusConfigurationSource>(source => source.StorageRepository = storageRepository);
     }
 }
