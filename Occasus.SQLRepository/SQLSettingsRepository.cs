@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
@@ -17,9 +18,13 @@ public class SQLSettingsRepository : IOptionsStorageRepository
 
     private IChangeToken? changeToken;
 
-    public SQLSettingsRepository(WebApplicationBuilder builder, Action<SQLSourceSettings> settings)
+
+    public SQLSettingsRepository(WebApplicationBuilder builder, Action<SQLSourceSettings> settings) : this(builder.Services, builder.Configuration, settings)
+    { }
+    public SQLSettingsRepository(IServiceCollection services, IConfiguration configuration, Action<SQLSourceSettings> settings)
     {
-        Builder = builder;
+        Services = services;
+        Configuration = configuration;
 
         SQLSettings = new();
 
@@ -33,7 +38,7 @@ public class SQLSettingsRepository : IOptionsStorageRepository
         if (SQLSettings.EncryptSettings && SQLSettings.EncryptionKey?.Length < 12)
         {
             SQLSettings.EncryptSettings = false;
-            var messageStore = builder.Services.BuildServiceProvider().GetRequiredService<OccasusMessageStore>();
+            var messageStore = services.BuildServiceProvider().GetRequiredService<OccasusMessageStore>();
             messageStore.Add("Encryption Disabled: Encryption key must be at least 12 characters");
         }
     }
@@ -41,7 +46,8 @@ public class SQLSettingsRepository : IOptionsStorageRepository
     public SQLSettingsRepository(WebApplicationBuilder builder, Action<SqlConnectionStringBuilder> sqlConnBuilder) : this(builder, b => { b.WithSQLConnection(sqlConnBuilder); })
     { }
 
-    public WebApplicationBuilder Builder { get; }
+    public IServiceCollection Services { get; }
+    public IConfiguration Configuration { get; }
     public SQLSourceSettings SQLSettings { get; }
 
     private string CheckTableExistsQuery => $"SELECT COUNT(*) FROM information_schema.TABLES WHERE (TABLE_NAME = '{SQLSettings.TableName}')";
@@ -85,7 +91,7 @@ public class SQLSettingsRepository : IOptionsStorageRepository
 
         var className = valueType.Name;
 
-        var settingItems = value?.ToSettingItems(new List<string> { className }, Builder.Services.BuildServiceProvider().GetService<ILogger>());
+        var settingItems = value?.ToSettingItems(new List<string> { className }, Services.BuildServiceProvider().GetService<ILogger>());
 
         if (settingItems is null)
         {
@@ -94,7 +100,7 @@ public class SQLSettingsRepository : IOptionsStorageRepository
 
         settingItems.ForEach(async ss => await PersistValue(ss, cancellation));
 
-        await ReloadSettings();
+        await ReloadSettings(cancellation);
     }
 
     public IChangeToken Watch()

@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 
 namespace Occasus.Repository.Interfaces;
 
 public interface IOptionsStorageRepository
 {
-    WebApplicationBuilder Builder { get; }
-
+    IServiceCollection Services { get; }
+    IConfiguration Configuration { get; }
     Task ClearSettings(string? classname = null, CancellationToken cancellation = default);   
     IDictionary<string, string> LoadSettings();
     Task ReloadSettings(CancellationToken cancellation = default);

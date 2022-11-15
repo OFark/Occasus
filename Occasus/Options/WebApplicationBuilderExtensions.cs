@@ -26,11 +26,17 @@ public static class WebApplicationBuilderExtensions
 
     private static readonly OccasusMessageStore MessageStore = new();
 
-    private static ILogger CreateLogger(WebApplicationBuilder builder) => builder.Services.BuildServiceProvider().GetRequiredService<ILogger<WebApplicationBuilder>>();
+    private static ILogger CreateLogger(IServiceCollection services) => services.BuildServiceProvider().GetRequiredService<ILogger<WebApplicationBuilder>>();
 
     public static WebApplicationBuilder UseOccasus(this WebApplicationBuilder builder)
     {
-        logger ??= CreateLogger(builder);
+        builder.Services.UseOccasus();
+        return builder;
+    }
+
+    public static IServiceCollection UseOccasus(this IServiceCollection services)
+    {
+        logger ??= CreateLogger(services);
 
         logger.LogInformation("Enabling Occasus");
 
@@ -38,62 +44,69 @@ public static class WebApplicationBuilderExtensions
         {
             logger.LogInformation("Occasus requires some assembly");
             logger.LogTrace("Adding this assembly to the Razor Pages");
-            builder.Services.AddRazorPages().PartManager.ApplicationParts.Add(new AssemblyPart(ThisAssembly));
+            services.AddRazorPages().PartManager.ApplicationParts.Add(new AssemblyPart(ThisAssembly));
             logger.LogTrace("Adding ServerSideBlazor");
-            builder.Services.AddServerSideBlazor();
+            services.AddServerSideBlazor();
 
             logger.LogTrace("Adding MudServices with Snackbar bottom center");
-            builder.Services.AddMudServices(config =>
+            services.AddMudServices(config =>
             {
                 config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;
             });
 
             logger.LogTrace("Adding Transient ISettingService");
-            builder.Services.TryAddTransient<ISettingService, SettingService>();
+            services.TryAddTransient<ISettingService, SettingService>();
             logger.LogTrace("Adding Transient IPOCOService");
-            builder.Services.TryAddTransient<IPOCOService, POCOService>();
+            services.TryAddTransient<IPOCOService, POCOService>();
 
-            builder.Services.TryAddSingleton<OccasusMessageStore>(MessageStore);
+            services.TryAddSingleton<OccasusMessageStore>(MessageStore);
         }
 
         logger.LogInformation("Occasus Assembled");
         OcassusAssembled = true;
 
-        return builder;
+        return services;
     }
 
     public static OptionsBuilder<T> AddOptionsBuilder<T>(this IOptionsStorageRepository storageRepository) where T : class, new()
     {
-        var builder = storageRepository.Builder;
+        var services = storageRepository.Services;
+        var configuration = storageRepository.Configuration;
         
-        logger ??= CreateLogger(builder);
+        logger ??= CreateLogger(services);
 
         logger.LogInformation("Adding {classname} to the Setting Store", typeof(T).Name);
         SettingsStore.Add<T>(storageRepository);
 
-        return builder.Services.AddOptions<T>()
-            .Bind(builder.Configuration.GetSection(typeof(T).Name));
+        return services.AddOptions<T>()
+            .Bind(configuration.GetSection(typeof(T).Name));
     }
 
     public static IOptionsStorageRepository AddOptions<T>(this IOptionsStorageRepository storageRepository) where T : class, new()
     {
-        var builder = storageRepository.Builder;
+        var services = storageRepository.Services;
+        var configuration = storageRepository.Configuration;
 
-        logger ??= CreateLogger(builder);
+        logger ??= CreateLogger(services);
 
         logger.LogInformation("Adding {classname} to the Setting Store", typeof(T).Name);
         SettingsStore.Add<T>(storageRepository);
 
-        builder.Services.AddOptions<T>().Bind(builder.Configuration.GetSection(typeof(T).Name));
+        services.AddOptions<T>().Bind(configuration.GetSection(typeof(T).Name));
 
         return storageRepository;
     }
 
     public static void AddConfigurationSource(this WebApplicationBuilder builder, IOptionsStorageRepository storageRepository, bool bypassRegistration = false)
     {
-        logger ??= CreateLogger(builder);
+        builder.Services.AddConfigurationSource(builder.Configuration, storageRepository, bypassRegistration);
+    }
 
-        if (!OcassusAssembled) builder.UseOccasus();
+    public static void AddConfigurationSource(this IServiceCollection services, IConfigurationBuilder configuration, IOptionsStorageRepository storageRepository, bool bypassRegistration = false)
+    {
+        logger ??= CreateLogger(services);
+
+        if (!OcassusAssembled) services.UseOccasus();
 
         var respositoryname = storageRepository.GetType().Name;
         if (!SettingsStore.ActiveRepositories.Contains(storageRepository))
@@ -101,7 +114,7 @@ public static class WebApplicationBuilderExtensions
             if (!bypassRegistration)
             {
                 logger.LogInformation("Adding {respositoryname} to the Configuration source", respositoryname);
-                builder.Configuration.Add<OccasusConfigurationSource>(source => source.StorageRepository = storageRepository);
+                configuration.Add<OccasusConfigurationSource>(source => source.StorageRepository = storageRepository);
             }
             SettingsStore.ActiveRepositories.Add(storageRepository);
         }

@@ -5,6 +5,7 @@ using Occasus.Repository.Interfaces;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Occasus.JSONRepository
 {
@@ -13,15 +14,20 @@ namespace Occasus.JSONRepository
         private readonly string filePath;
         private readonly JsonSourceSettings jsonSourceSettings;
 
-        public JSONSettingsRepository(WebApplicationBuilder builder, string filePath, Action<JsonSourceSettings>? jsonSourceSettings = null)
+        public JSONSettingsRepository(WebApplicationBuilder builder, string filePath, Action<JsonSourceSettings>? jsonSourceSettings = null) : this(builder.Services, builder.Configuration, filePath, jsonSourceSettings) 
+        { }
+
+        public JSONSettingsRepository(IServiceCollection services, IConfigurationRoot configuration, string filePath, Action<JsonSourceSettings>? jsonSourceSettings = null)
         {
-            Builder = builder;
+            Services = services;
+            Configuration = configuration;
             this.filePath = filePath;
             this.jsonSourceSettings = new(filePath);
             jsonSourceSettings?.Invoke(this.jsonSourceSettings);
         }
 
-        public WebApplicationBuilder Builder { get; }
+        public IServiceCollection Services { get; }
+        public IConfiguration Configuration { get; }
         public async Task ClearSettings(string? classname = null, CancellationToken cancellation = default)
         {
             if (!File.Exists(filePath))
@@ -72,7 +78,7 @@ namespace Occasus.JSONRepository
 
         public Task ReloadSettings(CancellationToken cancellation = default)
         {
-            ((IConfigurationRoot)Builder.Configuration).Reload();
+            ((IConfigurationRoot)Configuration).Reload();
             return Task.CompletedTask;
         }
 
@@ -84,7 +90,7 @@ namespace Occasus.JSONRepository
 
             root ??= JsonNode.Parse("{}");
 
-            if(root is null) throw new Exception("Json parsing failure");
+            if (root is null) throw new Exception("Json parsing failure");
 
             var className = valueType.Name;
 
@@ -108,6 +114,6 @@ namespace Occasus.JSONRepository
             await fileStream.FlushAsync(cancellation).ConfigureAwait(false);
         }
 
-        public IChangeToken Watch() => ((IConfigurationRoot)Builder.Configuration).GetReloadToken();
+        public IChangeToken Watch() => Configuration.GetReloadToken();
     }
 }
