@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Occasus.Helpers;
@@ -20,13 +18,10 @@ public class SQLSettingsRepository : IOptionsStorageRepository
     private IChangeToken? changeToken;
 
 
-    public SQLSettingsRepository(WebApplicationBuilder builder, Action<SQLSourceSettings> settings) : this(builder.Services, settings)
-    { }
-    public SQLSettingsRepository(IServiceCollection services, Action<SQLSourceSettings> settings)
+    public SQLSettingsRepository(Action<SQLSourceSettings> settings)
     {
-        Services = services;
-
         SQLSettings = new();
+        
 
         settings(SQLSettings);
 
@@ -38,20 +33,26 @@ public class SQLSettingsRepository : IOptionsStorageRepository
         if (SQLSettings.EncryptSettings && SQLSettings.EncryptionKey?.Length < 12)
         {
             SQLSettings.EncryptSettings = false;
-            var messageStore = services.BuildServiceProvider().GetRequiredService<OccasusMessageStore>();
-            messageStore.Add("Encryption Disabled: Encryption key must be at least 12 characters");
+            Messages = new()
+            {
+                "Encryption Disabled: Encryption key must be at least 12 characters"
+            };
         }
     }
 
-    public SQLSettingsRepository(WebApplicationBuilder builder, Action<SqlConnectionStringBuilder> sqlConnBuilder) : this(builder, b => { b.WithSQLConnection(sqlConnBuilder); })
+    public SQLSettingsRepository(Action<SqlConnectionStringBuilder> sqlConnBuilder) : this(b => { b.WithSQLConnection(sqlConnBuilder); })
     { }
 
-    public IServiceCollection Services { get; }
     public SQLSourceSettings SQLSettings { get; }
+
+    public List<string>? Messages { get; }
 
     private string CheckTableExistsQuery => $"SELECT COUNT(*) FROM information_schema.TABLES WHERE (TABLE_NAME = '{SQLSettings.TableName}')";
     private string CreateTableCommand => $"CREATE TABLE dbo.[{SQLSettings.TableName}] ([{SQLSettings.KeyColumnName}] varchar(255) NOT NULL,[{SQLSettings.ValueColumnName}] nvarchar(MAX) NOT NULL) ON[PRIMARY]; ALTER TABLE dbo.[{SQLSettings.TableName}] ADD CONSTRAINT PK_{SQLSettings.TableName.Replace(" ", "_")} PRIMARY KEY CLUSTERED([{SQLSettings.KeyColumnName}]) WITH(STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON[PRIMARY]; ALTER TABLE dbo.[{SQLSettings.TableName}] SET(LOCK_ESCALATION = TABLE)";
     private string LoadQuery => $"SELECT [{SQLSettings.KeyColumnName}], [{SQLSettings.ValueColumnName}] FROM [{SQLSettings.TableName}]";
+
+    public ILogger? Logger { get; }
+
     public async Task ClearSettings(string? className = null, CancellationToken cancellation = default)
     {
 
@@ -90,7 +91,7 @@ public class SQLSettingsRepository : IOptionsStorageRepository
 
         var className = valueType.Name;
 
-        var settingItems = value?.ToSettingItems(new List<string> { className }, Services.BuildServiceProvider().GetService<ILogger>());
+        var settingItems = value?.ToSettingItems(new List<string> { className }, Logger);
 
         if (settingItems is null)
         {
@@ -236,11 +237,13 @@ public class SQLSettingsRepository : IOptionsStorageRepository
         return dic;
     }
 
-    public void AddConfigurationSource(IServiceCollection services, IConfigurationBuilder configuration)
+    public bool AddConfigurationSource(IConfigurationBuilder configuration)
     {
-        if(services.AddConfigurationSource(this))
+        if(SettingsStore.TryAdd(this))
         { 
             configuration.AddOccasusConfiguration(this);
+            return true;
         }
+        return false;
     }
 }

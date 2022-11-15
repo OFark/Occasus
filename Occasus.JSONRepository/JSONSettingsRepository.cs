@@ -1,12 +1,9 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
 using Occasus.Repository.Interfaces;
+using Occasus.Settings;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Occasus.Options;
 
 namespace Occasus.JSONRepository
 {
@@ -15,18 +12,24 @@ namespace Occasus.JSONRepository
         private readonly string filePath;
         private readonly JsonSourceSettings jsonSourceSettings;
 
-        public JSONSettingsRepository(WebApplicationBuilder builder, string filePath, Action<JsonSourceSettings>? jsonSourceSettings = null) : this(builder.Services, filePath, jsonSourceSettings) 
-        { }
-
-        public JSONSettingsRepository(IServiceCollection services, string filePath, Action<JsonSourceSettings>? jsonSourceSettings = null)
+        public JSONSettingsRepository(string filePath, Action<JsonSourceSettings>? jsonSourceSettings = null)
         {
-            Services = services;
             this.filePath = filePath;
             this.jsonSourceSettings = new(filePath);
             jsonSourceSettings?.Invoke(this.jsonSourceSettings);
         }
 
-        public IServiceCollection Services { get; }
+        public List<string>? Messages => null;
+        public bool AddConfigurationSource(IConfigurationBuilder configuration)
+        {
+            if (SettingsStore.TryAdd(this))
+            {
+                configuration.AddJsonFile(filePath, false, true);
+                return true;
+            }
+
+            return false;
+        }
 
         public async Task ClearSettings(string? classname = null, CancellationToken cancellation = default)
         {
@@ -119,14 +122,6 @@ namespace Occasus.JSONRepository
             var changeToken = new CancellationChangeToken(changeCancellationTokenSource.Token);
 
             return changeToken;
-        }
-
-        public void AddConfigurationSource(IServiceCollection services, IConfigurationBuilder configuration)
-        {
-            if (services.AddConfigurationSource(this))
-            {
-                configuration.AddJsonFile(filePath, false, true);
-            }
         }
     }
 }

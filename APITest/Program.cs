@@ -8,7 +8,9 @@ using TestClassLibrary.TestModels;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.UseOptionsFromSQL(settings =>
+builder.AddOccasusUI()
+
+.UseOptionsFromSQL(settings =>
 {
     settings.EncryptSettings = true;
     settings.EncryptionKey = "mypassword";
@@ -20,22 +22,22 @@ builder.UseOptionsFromSQL(settings =>
         //sqlConnBuilder.IntegratedSecurity = true;
     });
 })
-    .AddOptions<TestSimple>()
-    .AddOptions<TestComplex>()
-    .AddOptions<TestArrays>()
-    .AddOptions<TestHashSets>()
-    .AddOptions<TestLists>()
-    .AddOptionsBuilder<TestDictionaries>();
+    .AddOptions<TestSimple>(builder.Services)
+    .AddOptions<TestComplex>(builder.Services)
+    .AddOptions<TestArrays>(builder.Services)
+    .AddOptions<TestHashSets>(builder.Services)
+    .AddOptions<TestLists>(builder.Services)
+    .AddOptionsBuilder<TestDictionaries>(builder.Services);
 
 builder.UseOptionsFromJsonFile("appsettings.json", settings =>
 {
     settings.JsonWriterOptions((ref JsonWriterOptions options) => options.Indented = true);
     settings.JsonNodeOptions((ref JsonNodeOptions options) => options.PropertyNameCaseInsensitive = true);
 })
-    .AddOptions<TestAppSettingsJson>();
+    .AddOptions<TestAppSettingsJson>(builder.Services);
 
 builder.UseOptionsFromJsonFile("settings/settings.json")
-    .AddOptions<TestJson>();
+    .AddOptions<TestJson>(builder.Services);
 
 // Add services to the container.
 

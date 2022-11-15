@@ -6,7 +6,8 @@ namespace Occasus.Repository.Interfaces;
 
 public interface IOptionsStorageRepository
 {
-    IServiceCollection Services { get; }
+    List<string>? Messages { get; }
+
     Task ClearSettings(string? classname = null, CancellationToken cancellation = default);   
     IDictionary<string, string> LoadSettings();
     Task ReloadSettings(CancellationToken cancellation = default);

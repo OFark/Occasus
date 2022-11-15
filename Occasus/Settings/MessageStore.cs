@@ -4,7 +4,14 @@
     {
         readonly List<string> _messages = new();
 
-        public IReadOnlyList<string> Messages => _messages.AsReadOnly();
+        public IReadOnlyList<string> Messages
+        {
+            get
+            {
+                var repMessages = SettingsStore.ActiveRepositories.Where(r => r.Messages is not null).SelectMany(r => r.Messages!);
+                return _messages.Union(repMessages).ToList().AsReadOnly();
+            }
+        }
 
         public void Add(string message, bool add = true)
         {
