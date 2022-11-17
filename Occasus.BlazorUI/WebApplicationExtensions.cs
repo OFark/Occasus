@@ -52,7 +52,7 @@ public static class WebApplicationExtensions
 
         app.UseStaticFiles(new StaticFileOptions
         {
-            FileProvider = new EmbeddedFileProvider(ThisAssembly, "Occasus.wwwroot"),
+            FileProvider = new EmbeddedFileProvider(ThisAssembly, "Occasus.BlazorUI.wwwroot"),
             RequestPath = "/occasus"
         });
 
