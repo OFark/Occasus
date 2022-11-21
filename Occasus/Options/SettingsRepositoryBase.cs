@@ -11,7 +11,7 @@ namespace Occasus.Options
         public IServiceCollection Services { get => _services ?? throw new Exception("Services should be accessed via the IOptionsStorageRepositoryWithServices interface"); }
 
         protected IServiceCollection? _services;
-        public IOptionsStorageRepositoryWithServices AddServices(IServiceCollection services)
+        public virtual IOptionsStorageRepositoryWithServices AddServices(IServiceCollection services)
         {
             _services = services;
             return this;
