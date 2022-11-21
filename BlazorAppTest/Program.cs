@@ -22,22 +22,22 @@ builder.AddOccasusUI()
         //sqlConnBuilder.IntegratedSecurity = true;
     });
 })
-    .AddOptions<TestSimple>(builder.Services)
-    .AddOptions<TestComplex>(builder.Services)
-    .AddOptions<TestArrays>(builder.Services)
-    .AddOptions<TestHashSets>(builder.Services)
-    .AddOptions<TestLists>(builder.Services)
-    .AddOptionsBuilder<TestDictionaries>(builder.Services);
+    .WithOptions<TestSimple>()
+    .WithOptions<TestComplex>()
+    .WithOptions<TestArrays>()
+    .WithOptions<TestHashSets>()
+    .WithOptions<TestLists>()
+    .WithOptions<TestDictionaries>();
 
 builder.UseOptionsFromJsonFile("appsettings.json", settings =>
 {
     settings.JsonWriterOptions((ref JsonWriterOptions options) => options.Indented = true);
     settings.JsonNodeOptions((ref JsonNodeOptions options) => options.PropertyNameCaseInsensitive = true);
 })
-    .AddOptions<TestAppSettingsJson>(builder.Services);
+    .WithOptions<TestAppSettingsJson>();
 
 builder.UseOptionsFromJsonFile("settings/settings.json")
-    .AddOptions<TestJson>(builder.Services);
+    .WithOptions<TestJson>();
 
 
 // Add services to the container.

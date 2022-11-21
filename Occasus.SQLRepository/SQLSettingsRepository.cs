@@ -1,27 +1,25 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Occasus.Helpers;
 using Occasus.Options;
 using Occasus.Repository.Interfaces;
-using Occasus.Settings;
 using Occasus.Settings.Models;
 using System.Data.SqlClient;
 using System.Diagnostics;
 
 namespace Occasus.SQLRepository;
 
-public class SQLSettingsRepository : IOptionsStorageRepository
+public class SQLSettingsRepository : SettingsRepositoryBase, IOptionsStorageRepositoryWithServices
 {
+    internal readonly SQLSourceSettings SQLSettings;
     private CancellationTokenSource? changeCancellationTokenSource;
 
     private IChangeToken? changeToken;
 
 
-    public SQLSettingsRepository(Action<SQLSourceSettings> settings)
+    internal SQLSettingsRepository(Action<SQLSourceSettings> settings)
     {
         SQLSettings = new();
-        
 
         settings(SQLSettings);
 
@@ -39,21 +37,14 @@ public class SQLSettingsRepository : IOptionsStorageRepository
             };
         }
     }
+    public ILogger? Logger { get; }
 
-    public SQLSettingsRepository(Action<SqlConnectionStringBuilder> sqlConnBuilder) : this(b => { b.WithSQLConnection(sqlConnBuilder); })
-    { }
-
-    public SQLSourceSettings SQLSettings { get; }
-
-    public List<string>? Messages { get; }
 
     private string CheckTableExistsQuery => $"SELECT COUNT(*) FROM information_schema.TABLES WHERE (TABLE_NAME = '{SQLSettings.TableName}')";
     private string CreateTableCommand => $"CREATE TABLE dbo.[{SQLSettings.TableName}] ([{SQLSettings.KeyColumnName}] varchar(255) NOT NULL,[{SQLSettings.ValueColumnName}] nvarchar(MAX) NOT NULL) ON[PRIMARY]; ALTER TABLE dbo.[{SQLSettings.TableName}] ADD CONSTRAINT PK_{SQLSettings.TableName.Replace(" ", "_")} PRIMARY KEY CLUSTERED([{SQLSettings.KeyColumnName}]) WITH(STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON[PRIMARY]; ALTER TABLE dbo.[{SQLSettings.TableName}] SET(LOCK_ESCALATION = TABLE)";
     private string LoadQuery => $"SELECT [{SQLSettings.KeyColumnName}], [{SQLSettings.ValueColumnName}] FROM [{SQLSettings.TableName}]";
 
-    public ILogger? Logger { get; }
-
-    public async Task ClearSettings(string? className = null, CancellationToken cancellation = default)
+    public override async Task ClearSettings(string? className = null, CancellationToken cancellation = default)
     {
 
         var command = $"DELETE FROM [{SQLSettings.TableName}]{(className is not null ? $" WHERE [{SQLSettings.KeyColumnName}] LIKE @Filter" : "")}";
@@ -70,7 +61,8 @@ public class SQLSettingsRepository : IOptionsStorageRepository
         changeCancellationTokenSource?.Cancel();
     }
 
-    public IDictionary<string, string> LoadSettings()
+
+    public override IDictionary<string, string> LoadSettings()
     {
         Debug.Assert(SQLSettings is not null);
 
@@ -78,14 +70,15 @@ public class SQLSettingsRepository : IOptionsStorageRepository
         return ReadSettingsFromDB();
     }
 
-    public Task ReloadSettings(CancellationToken cancellation = default)
+    public override Task ReloadSettings(CancellationToken cancellation = default)
     {
         changeCancellationTokenSource?.Cancel();
 
         return Task.CompletedTask;
     }
 
-    public async Task StoreSetting<T>(T value, Type valueType, CancellationToken cancellation = default)
+
+    public override async Task StoreSetting<T>(T value, Type valueType, CancellationToken cancellation = default)
     {
         Debug.Assert(SQLSettings is not null);
 
@@ -103,7 +96,8 @@ public class SQLSettingsRepository : IOptionsStorageRepository
         await ReloadSettings(cancellation);
     }
 
-    public IChangeToken Watch()
+
+    public override IChangeToken Watch()
     {
         changeCancellationTokenSource = new CancellationTokenSource();
         changeToken = new CancellationChangeToken(changeCancellationTokenSource.Token);
@@ -235,15 +229,5 @@ public class SQLSettingsRepository : IOptionsStorageRepository
         }
 
         return dic;
-    }
-
-    public bool AddConfigurationSource(IConfigurationBuilder configuration)
-    {
-        if(SettingsStore.TryAdd(this))
-        { 
-            configuration.AddOccasusConfiguration(this);
-            return true;
-        }
-        return false;
     }
 }

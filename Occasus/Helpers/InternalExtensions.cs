@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace Occasus.Helpers;
 
-internal static class Extensions
+internal static class InternalExtensions
 {
 
     internal static Type CollectionType(this Type type) => type.NonNullableType() is Type ult ? ult.IsGenericType ? ult.GetGenericArguments()[0] :

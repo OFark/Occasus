@@ -7,10 +7,10 @@ using System.Reflection;
 
 namespace Occasus.BlazorUI;
 
-public static class WebApplicationExtensions
+public static class Extensions
 {
 
-    private static Assembly ThisAssembly => Assembly.GetAssembly(typeof(WebApplicationExtensions))!;
+    private static Assembly ThisAssembly => Assembly.GetAssembly(typeof(Extensions))!;
 
     private static ILogger? CreateLogger(IServiceProvider services) => services.GetService<ILogger<Program>>();
 

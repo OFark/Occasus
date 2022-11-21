@@ -22,7 +22,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestClassLibrary", "TestCla
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Occasus.BlazorUI", "Occasus.BlazorUI\Occasus.BlazorUI.csproj", "{8B27CF25-168B-47CE-9F03-8A28D8E5BFA6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Occasus", "Occasus\Occasus.csproj", "{2C290E3B-82A0-4C7C-B8A9-74B2094ACAB8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Occasus", "Occasus\Occasus.csproj", "{2C290E3B-82A0-4C7C-B8A9-74B2094ACAB8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTest", "TestConsole\ConsoleTest.csproj", "{D22670C9-E4A5-4F81-BB1E-4D65E37308D1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,6 +60,10 @@ Global
 		{2C290E3B-82A0-4C7C-B8A9-74B2094ACAB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C290E3B-82A0-4C7C-B8A9-74B2094ACAB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C290E3B-82A0-4C7C-B8A9-74B2094ACAB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D22670C9-E4A5-4F81-BB1E-4D65E37308D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D22670C9-E4A5-4F81-BB1E-4D65E37308D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D22670C9-E4A5-4F81-BB1E-4D65E37308D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D22670C9-E4A5-4F81-BB1E-4D65E37308D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

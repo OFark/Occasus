@@ -1,13 +1,13 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Primitives;
+﻿using Microsoft.Extensions.Primitives;
+using Occasus.Options;
 using Occasus.Repository.Interfaces;
-using Occasus.Settings;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace Occasus.JSONRepository
 {
-    public class JSONSettingsRepository : IOptionsStorageRepository
+    public class JSONSettingsRepository : SettingsRepositoryBase, IOptionsStorageRepositoryWithServices
     {
         private readonly string filePath;
         private readonly JsonSourceSettings jsonSourceSettings;
@@ -17,21 +17,13 @@ namespace Occasus.JSONRepository
             this.filePath = filePath;
             this.jsonSourceSettings = new(filePath);
             jsonSourceSettings?.Invoke(this.jsonSourceSettings);
-        }
 
-        public List<string>? Messages => null;
-        public bool AddConfigurationSource(IConfigurationBuilder configuration)
-        {
-            if (SettingsStore.TryAdd(this))
+            if (!File.Exists(filePath))
             {
-                configuration.AddJsonFile(filePath, false, true);
-                return true;
+                CreateEmptyJsonFile(filePath);
             }
-
-            return false;
         }
-
-        public async Task ClearSettings(string? classname = null, CancellationToken cancellation = default)
+        public override async Task ClearSettings(string? classname = null, CancellationToken cancellation = default)
         {
             if (!File.Exists(filePath))
             {
@@ -55,9 +47,6 @@ namespace Occasus.JSONRepository
                 }
 
                 root.AsObject().Remove(classname);
-
-                //Builder.Configuration.GetSection(classname).GetReloadToken();
-
             }
 
             if (classname is null && jsonSourceSettings.ClearWholeFile)
@@ -74,17 +63,17 @@ namespace Occasus.JSONRepository
             await fileStream.FlushAsync(cancellation).ConfigureAwait(false);
         }
 
-        public IDictionary<string, string> LoadSettings()
+        public override IDictionary<string, string> LoadSettings()
         {
             return new Dictionary<string, string>();
         }
 
-        public Task ReloadSettings(CancellationToken cancellation = default)
+        public override Task ReloadSettings(CancellationToken cancellation = default)
         {
             return Task.CompletedTask;
         }
 
-        public async Task StoreSetting<T>(T value, Type valueType, CancellationToken cancellation = default)
+        public override async Task StoreSetting<T>(T value, Type valueType, CancellationToken cancellation = default)
         {
             using var fileStream = new FileStream(filePath, FileMode.OpenOrCreate);
 
@@ -92,7 +81,10 @@ namespace Occasus.JSONRepository
 
             root ??= JsonNode.Parse("{}");
 
-            if (root is null) throw new Exception("Json parsing failure");
+            if (root is null)
+            {
+                throw new Exception("Json parsing failure");
+            }
 
             var className = valueType.Name;
 
@@ -116,12 +108,24 @@ namespace Occasus.JSONRepository
             await fileStream.FlushAsync(cancellation).ConfigureAwait(false);
         }
 
-        public IChangeToken Watch()
+        public override IChangeToken Watch()
         {
             var changeCancellationTokenSource = new CancellationTokenSource();
             var changeToken = new CancellationChangeToken(changeCancellationTokenSource.Token);
 
             return changeToken;
+        }
+
+        private static void CreateEmptyJsonFile(string filePath)
+        {
+            var fileInfo = new FileInfo(filePath);
+
+            if (fileInfo.Directory is not null && !fileInfo.Directory.Exists)
+            {
+                fileInfo.Directory.Create();
+            }
+
+            File.WriteAllText(filePath, "{}", Encoding.UTF8);
         }
     }
 }
