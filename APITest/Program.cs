@@ -31,6 +31,7 @@ builder.AddOccasusUI()
 
 optionsBuilder.Validate(x => x.TestDictionaryStringStrings != null && x.TestDictionaryStringStrings.Any(), "Test DictionaryStrings must have some value");
 
+
 builder.UseOptionsFromJsonFile("appsettings.json", settings =>
 {
     settings.JsonWriterOptions((ref JsonWriterOptions options) => options.Indented = true);
@@ -48,6 +49,10 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 
 app.UseOccasusUI("mypassword");
+
+object? state = default;
+
+app.Configuration.GetSection("TestSimple").GetReloadToken().RegisterChangeCallback((x) => Console.WriteLine("TestSImple has changed"), state);
 
 
 var summaries = new[]

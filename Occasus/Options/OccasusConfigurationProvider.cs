@@ -28,6 +28,8 @@ namespace Occasus.Options
         {
             Data = storageRepository.LoadSettings();
 
+            OnReload();
+
             Debug.Assert(Data is not null);
         }
     }
