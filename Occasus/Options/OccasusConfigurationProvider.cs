@@ -25,8 +25,6 @@ namespace Occasus.Options
         public override void Load()
         {
             Data = storageRepository.LoadSettings();
-            
-            Console.WriteLine("Loading Data");
 
             Reload();
 
