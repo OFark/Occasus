@@ -30,4 +30,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Occasus\Occasus.csproj" />
+  </ItemGroup>
+
 </Project>
