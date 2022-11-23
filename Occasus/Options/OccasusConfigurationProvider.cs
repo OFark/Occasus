@@ -14,8 +14,7 @@ namespace Occasus.Options
         {
             this.storageRepository = storageRepository;
 
-            //_changeTokenRegistration = this.storageRepository.Watch(GetReloadToken()).RegisterChangeCallback(ReloadData, null);
-            ChangeToken.OnChange<IOptionsStorageRepository>(() => this.storageRepository.Watch(), ReloadData, this.storageRepository);
+            _changeTokenRegistration = ChangeToken.OnChange<IOptionsStorageRepository>(() => this.storageRepository.Watch(), ReloadData, this.storageRepository);
         }
 
         public void Dispose()

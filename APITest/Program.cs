@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Occasus.BlazorUI;
@@ -63,7 +62,7 @@ ChangeToken.OnChange(() => app.Configuration.GetSection("TestSimple").GetReloadT
 
 app.MapGet("/testSimple", (IOptionsSnapshot<TestSimple> testSimple) =>
 {
-    
+
     return testSimple.Value;
 });
 
