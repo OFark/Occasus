@@ -78,6 +78,7 @@ public static class Extensions
 
         if (SettingsStore.TryAdd(storageRepository) && !bypassRegistration)
         {
+            logger?.LogInformation("Adding {Name} to Configuration Source", storageRepository.GetType().Name);
             configuration.Add<OccasusConfigurationSource>(source => source.StorageRepository = storageRepository);
         }
     }

@@ -48,9 +48,9 @@ namespace Occasus.Settings
 
         public async Task ReloadAllSettings(CancellationToken cancellation = default)
         {
-            foreach (var settingBox in SettingsStore.SettingsWithRepositories)
+            foreach (var repo in SettingsStore.ActiveRepositories)
             {
-                await settingBox.ReloadSettingsFromStorageAsync(cancellation).ConfigureAwait(false);
+                await repo.ReloadSettings(cancellation).ConfigureAwait(false);
             }
         }
 
@@ -59,11 +59,7 @@ namespace Occasus.Settings
             var valid = Validate(setting);
             if (!valid.Failed)
             {
-                await setting.ClearSettingStorageAsync(cancellation).ConfigureAwait(false);
-
                 await setting.PersistSettingToStorageAsync(logger, cancellation).ConfigureAwait(false);
-
-                await setting.ReloadSettingsFromStorageAsync(cancellation).ConfigureAwait(false);
             }
 
             return valid;

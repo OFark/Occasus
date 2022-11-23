@@ -1,7 +1,10 @@
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
+using Occasus.BlazorUI;
 using Occasus.JSONRepository;
 using Occasus.Options;
 using Occasus.SQLRepository;
-using Occasus.BlazorUI;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using TestClassLibrary.TestModels;
@@ -50,33 +53,19 @@ var app = builder.Build();
 
 app.UseOccasusUI("mypassword");
 
-object? state = default;
-
-app.Configuration.GetSection("TestSimple").GetReloadToken().RegisterChangeCallback((x) => Console.WriteLine("TestSImple has changed"), state);
 
 
-var summaries = new[]
+ChangeToken.OnChange(() => app.Configuration.GetSection("TestSimple").GetReloadToken(), delegate
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    Console.WriteLine("Something has changed");
+});
 
-app.MapGet("/weatherforecast", () =>
+
+app.MapGet("/testSimple", (IOptionsSnapshot<TestSimple> testSimple) =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateTime.Now.AddDays(index),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+    
+    return testSimple.Value;
 });
 
 
 app.Run();
-
-internal record WeatherForecast(DateTime Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
+using Occasus.Options;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Occasus.Repository.Interfaces;
@@ -22,4 +23,5 @@ public interface IOptionsStorageRepository
 
     Task StoreSetting<T>(T value, Type valueType, CancellationToken cancellation = default);
     IChangeToken Watch();
+
 }

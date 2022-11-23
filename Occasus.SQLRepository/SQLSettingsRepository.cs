@@ -12,10 +12,6 @@ namespace Occasus.SQLRepository;
 public class SQLSettingsRepository : SettingsRepositoryBase, IOptionsStorageRepositoryWithServices
 {
     internal readonly SQLSourceSettings SQLSettings;
-    private CancellationTokenSource? changeCancellationTokenSource;
-
-    private IChangeToken? changeToken;
-
 
     internal SQLSettingsRepository(Action<SQLSourceSettings> settings)
     {
@@ -36,17 +32,22 @@ public class SQLSettingsRepository : SettingsRepositoryBase, IOptionsStorageRepo
                 "Encryption Disabled: Encryption key must be at least 12 characters"
             };
         }
+
     }
-    public ILogger? Logger { get; }
-
-
+    
     private string CheckTableExistsQuery => $"SELECT COUNT(*) FROM information_schema.TABLES WHERE (TABLE_NAME = '{SQLSettings.TableName}')";
     private string CreateTableCommand => $"CREATE TABLE dbo.[{SQLSettings.TableName}] ([{SQLSettings.KeyColumnName}] varchar(255) NOT NULL,[{SQLSettings.ValueColumnName}] nvarchar(MAX) NOT NULL) ON[PRIMARY]; ALTER TABLE dbo.[{SQLSettings.TableName}] ADD CONSTRAINT PK_{SQLSettings.TableName.Replace(" ", "_")} PRIMARY KEY CLUSTERED([{SQLSettings.KeyColumnName}]) WITH(STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON[PRIMARY]; ALTER TABLE dbo.[{SQLSettings.TableName}] SET(LOCK_ESCALATION = TABLE)";
     private string LoadQuery => $"SELECT [{SQLSettings.KeyColumnName}], [{SQLSettings.ValueColumnName}] FROM [{SQLSettings.TableName}]";
 
     public override async Task ClearSettings(string? className = null, CancellationToken cancellation = default)
     {
+        await DeletedSettings(className, cancellation).ConfigureAwait(false);
 
+        OnReload();
+    }
+
+    private async Task DeletedSettings(string? className = null, CancellationToken cancellation = default)
+    {
         var command = $"DELETE FROM [{SQLSettings.TableName}]{(className is not null ? $" WHERE [{SQLSettings.KeyColumnName}] LIKE @Filter" : "")}";
 
         using var connection = new SqlConnection(SQLSettings.ConnectionString);
@@ -57,8 +58,6 @@ public class SQLSettingsRepository : SettingsRepositoryBase, IOptionsStorageRepo
         }
         query.Connection.Open();
         await query.ExecuteNonQueryAsync(cancellation);
-
-        changeCancellationTokenSource?.Cancel();
     }
 
 
@@ -72,7 +71,8 @@ public class SQLSettingsRepository : SettingsRepositoryBase, IOptionsStorageRepo
 
     public override Task ReloadSettings(CancellationToken cancellation = default)
     {
-        changeCancellationTokenSource?.Cancel();
+        Logger?.LogTrace("Reloading Settings from SQL");
+        OnReload();
 
         return Task.CompletedTask;
     }
@@ -81,6 +81,7 @@ public class SQLSettingsRepository : SettingsRepositoryBase, IOptionsStorageRepo
     public override async Task StoreSetting<T>(T value, Type valueType, CancellationToken cancellation = default)
     {
         Debug.Assert(SQLSettings is not null);
+        Logger?.LogTrace("Saving settings to SQL");
 
         var className = valueType.Name;
 
@@ -91,18 +92,13 @@ public class SQLSettingsRepository : SettingsRepositoryBase, IOptionsStorageRepo
             return;
         }
 
-        settingItems.ForEach(async ss => await PersistValue(ss, cancellation));
+        await DeletedSettings(className, cancellation).ConfigureAwait(false);
+
+        var persisting = settingItems.Select(ss => PersistValue(ss, cancellation)).ToArray();
+
+        Task.WaitAll(persisting, cancellation);
 
         await ReloadSettings(cancellation);
-    }
-
-
-    public override IChangeToken Watch()
-    {
-        changeCancellationTokenSource = new CancellationTokenSource();
-        changeToken = new CancellationChangeToken(changeCancellationTokenSource.Token);
-
-        return changeToken;
     }
 
     private void EnsureDBExists()
@@ -162,6 +158,7 @@ public class SQLSettingsRepository : SettingsRepositoryBase, IOptionsStorageRepo
 
     private async Task PersistValue(SettingStorage ss, CancellationToken cancellation = default)
     {
+        Logger?.LogTrace("Persisting Settings to SQL");
         using var connection = new SqlConnection(SQLSettings.ConnectionString);
         await connection.OpenAsync(cancellation).ConfigureAwait(false);
         var key = ss.Name;
@@ -194,6 +191,7 @@ public class SQLSettingsRepository : SettingsRepositoryBase, IOptionsStorageRepo
         query.Parameters.Add(new SqlParameter("@Value", itemValue));
 
         await query.ExecuteNonQueryAsync(cancellation).ConfigureAwait(false);
+        Logger?.LogTrace("Persisting Settings to SQL Complete");
     }
     private IDictionary<string, string> ReadSettingsFromDB()
     {

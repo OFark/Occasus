@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Primitives;
-using Occasus.Options;
+﻿using Occasus.Options;
 using Occasus.Repository.Interfaces;
 using System.Text;
 using System.Text.Json;
@@ -106,14 +105,6 @@ namespace Occasus.JSONRepository
             root.WriteTo(writer, jsonSourceSettings.SerializerOptions);
 
             await fileStream.FlushAsync(cancellation).ConfigureAwait(false);
-        }
-
-        public override IChangeToken Watch()
-        {
-            var changeCancellationTokenSource = new CancellationTokenSource();
-            var changeToken = new CancellationChangeToken(changeCancellationTokenSource.Token);
-
-            return changeToken;
         }
 
         private static void CreateEmptyJsonFile(string filePath)
