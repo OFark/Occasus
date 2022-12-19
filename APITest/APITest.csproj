@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Occasus.BlazorUI\Occasus.BlazorUI.csproj" />
+    <ProjectReference Include="..\Occasus.FeatureManagement\Occasus.FeatureManagement.csproj" />
     <ProjectReference Include="..\Occasus.JSONRepository\Occasus.JSONRepository.csproj" />
     <ProjectReference Include="..\Occasus.SQLEFRepository\Occasus.SQLEFRepository.csproj" />
     <ProjectReference Include="..\Occasus.SQLRepository\Occasus.SQLRepository.csproj" />

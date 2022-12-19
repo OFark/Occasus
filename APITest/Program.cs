@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Occasus.BlazorUI;
+using Occasus.FeatureManagement;
 using Occasus.JSONRepository;
 using Occasus.Options;
 using Occasus.SQLEFRepository;
@@ -32,7 +33,9 @@ builder.AddOccasusUI()
     .WithOptions<TestArrays>()
     .WithOptions<TestHashSets>()
     .WithOptions<TestLists>()
+    .WithFeatureFlagOptions<TestSimple>(builder.Configuration)
     .WithOptions<TestDictionaries>(out var optionsBuilder);
+    
 
 optionsBuilder.Validate(x => x.TestDictionaryStringStrings != null && x.TestDictionaryStringStrings.Any(), "Test DictionaryStrings must have some value");
 
@@ -53,7 +56,7 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-app.UseOccasusUI("mypassword");
+app.UseOccasusUI("mypassword", "/other");
 
 
 

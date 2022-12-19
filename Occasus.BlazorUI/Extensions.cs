@@ -43,7 +43,7 @@ public static class Extensions
     }
 
 
-    public static void UseOccasusUI(this WebApplication app, string? uiPassword = null)
+    public static void UseOccasusUI(this WebApplication app, string? uiPassword = null, string uiLocation = "/occasus")
     {
         var logger = CreateLogger(app.Services);
 
@@ -53,25 +53,25 @@ public static class Extensions
         app.UseStaticFiles(new StaticFileOptions
         {
             FileProvider = new EmbeddedFileProvider(ThisAssembly, "Occasus.BlazorUI.wwwroot"),
-            RequestPath = "/occasus"
+            RequestPath = uiLocation
         });
 
-        app.UseStaticFiles("/occasus");
+        app.UseStaticFiles(uiLocation);
 
+        app.Configuration["OccasusUI:Location"] = uiLocation;
 
         if (!string.IsNullOrWhiteSpace(uiPassword))
         {
             app.Configuration["OccasusUI:Password"] = uiPassword;
         }
 
-        app.MapFallbackToPage("/occasus/{*path:nonfile}", "/_OccasusHost");
+        app.MapFallbackToPage($"{uiLocation}/{{*path:nonfile}}", "/_OccasusHost");
 
         app.UseRouting();
 
         app.UseStaticFiles();
 
-        app.MapBlazorHub("/occasus/_blazor");
-
+        app.MapBlazorHub($"{uiLocation}/_blazor");
     }
 
 }

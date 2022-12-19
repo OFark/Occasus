@@ -1,6 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Components.Web
 @namespace Occasus.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@inject IConfiguration Configuration
+@{
+    var basePath = $"{Configuration["OccasusUI:Location"]}/";
+}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -10,7 +14,7 @@
     <meta name="msapplication-TileColor" content="#2b5797">
     <meta name="msapplication-TileImage" content="/mstile-144x144.png">
     <meta name="theme-color" content="#ffffff">
-    <base href="/occasus/" />
+    <base href="@basePath" />
     <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
     <link href="css/occasus.min.css" rel="stylesheet" />
 
