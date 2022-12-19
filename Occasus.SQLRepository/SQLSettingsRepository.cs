@@ -41,12 +41,12 @@ public class SQLSettingsRepository : SettingsRepositoryBase, IOptionsStorageRepo
 
     public override async Task ClearSettings(string? className = null, CancellationToken cancellation = default)
     {
-        await DeletedSettings(className, cancellation).ConfigureAwait(false);
+        await DeleteSettings(className, cancellation).ConfigureAwait(false);
 
         OnReload();
     }
 
-    private async Task DeletedSettings(string? className = null, CancellationToken cancellation = default)
+    private async Task DeleteSettings(string? className = null, CancellationToken cancellation = default)
     {
         var command = $"DELETE FROM [{SQLSettings.TableName}]{(className is not null ? $" WHERE [{SQLSettings.KeyColumnName}] LIKE @Filter" : "")}";
 
@@ -92,7 +92,7 @@ public class SQLSettingsRepository : SettingsRepositoryBase, IOptionsStorageRepo
             return;
         }
 
-        await DeletedSettings(className, cancellation).ConfigureAwait(false);
+        await DeleteSettings(className, cancellation).ConfigureAwait(false);
 
         var persisting = settingItems.Select(ss => PersistValue(ss, cancellation)).ToArray();
 

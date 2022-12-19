@@ -3,7 +3,7 @@ using Microsoft.Extensions.Primitives;
 using Occasus.BlazorUI;
 using Occasus.JSONRepository;
 using Occasus.Options;
-using Occasus.SQLRepository;
+using Occasus.SQLEFRepository;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using TestClassLibrary.TestModels;
@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddOccasusUI()
 
-.UseOptionsFromSQL(settings =>
+.UseOptionsFromSQLEF(settings =>
 {
     settings.EncryptSettings = true;
     settings.EncryptionKey = "mypassword";
@@ -22,6 +22,9 @@ builder.AddOccasusUI()
         sqlConnBuilder.PersistSecurityInfo = true;
         //sqlConnBuilder.MultipleActiveResultSets = true;
         //sqlConnBuilder.IntegratedSecurity = true;
+    }, dbOptions =>
+    {
+        dbOptions.EnableRetryOnFailure(3, new(0, 0, 5), null);
     });
 })
     .WithOptions<TestSimple>()
