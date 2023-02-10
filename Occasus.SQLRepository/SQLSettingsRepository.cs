@@ -85,7 +85,7 @@ public class SQLSettingsRepository : SettingsRepositoryBase, IOptionsStorageRepo
 
         var className = valueType.Name;
 
-        var settingItems = value?.ToSettingItems(new List<string> { className }, Logger);
+        var settingItems = value?.ToSettingItems(className, Logger);
 
         if (settingItems is null)
         {

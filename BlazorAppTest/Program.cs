@@ -5,6 +5,7 @@ using Occasus.Options;
 using Occasus.SQLEFRepository;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using TestClassLibrary.SupportModels;
 using TestClassLibrary.TestModels;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,7 +31,8 @@ builder.AddOccasusUI()
     .WithOptions<TestArrays>()
     .WithOptions<TestHashSets>()
     .WithOptions<TestLists>()
-    .WithOptions<TestDictionaries>();
+    .WithOptions<TestDictionaries>()
+    .WithOptions<Catalogue>();
 
 builder.UseOptionsFromJsonFile("appsettings.json", settings =>
 {

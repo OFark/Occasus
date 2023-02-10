@@ -58,14 +58,16 @@ public static class PublicExtensions
     public static bool IsSimple(this Type type) => TypeDescriptor.GetConverter(type).CanConvertFrom(typeof(string));
     public static Type NonNullableType(this Type type) => Nullable.GetUnderlyingType(type) ?? type;
     //or it has a parameterless constructor
-    public static List<SettingStorage> ToSettingItems(this object obj, List<string> path, ILogger? logger)
+    public static List<SettingStorage> ToSettingItems(this object obj, string path, ILogger? logger)
+        => ToSettingItems(obj, new Stack<string>(new List<string>() {  path }), logger);
+    public static List<SettingStorage> ToSettingItems(this object obj, Stack<string> path, ILogger? logger)
     {
 
         var results = new List<SettingStorage>();
 
         if (obj is null)
         {
-            results.Add(new(ConfigurationPath.Combine(path), null));
+            results.Add(new(ConfigurationPath.Combine(path.Reverse()), null));
 
             return results;
         }
@@ -74,7 +76,7 @@ public static class PublicExtensions
 
         if (type.IsSimple())
         {
-            results.Add(new(ConfigurationPath.Combine(path), obj as string));
+            results.Add(new(ConfigurationPath.Combine(path.Reverse()), obj as string));
             return results;
         }
 
@@ -82,19 +84,17 @@ public static class PublicExtensions
         {
             foreach (DictionaryEntry item in (IDictionary)obj)
             {
-                path.Add(item.Key.ToString()!);
+                path.Push(item.Key.ToString()!);
                 if (item.Value?.GetType().IsSimple() ?? true)
                 {
-                    results.Add(new(ConfigurationPath.Combine(path), item.Value is DateTime dt ? dt.ToString("s") : item.Value?.ToString()));
+                    results.Add(new(ConfigurationPath.Combine(path.Reverse()), item.Value is DateTime dt ? dt.ToString("s") : item.Value?.ToString()));
                 }
                 else
                 {
                     var subitems = ToSettingItems(item, path, logger);
                     results.AddRange(subitems);
                 }
-                path.Remove(path.Last());
-
-
+                path.Pop();
             }
 
             return results;
@@ -106,12 +106,12 @@ public static class PublicExtensions
 
             foreach (var item in (IEnumerable)obj)
             {
-                path.Add(i.ToString());
+                path.Push(i.ToString());
                 if (item.GetType().IsSimple())
                 {
                     if (item is not null)
                     {
-                        results.Add(new(ConfigurationPath.Combine(path), item is DateTime dt ? dt.ToString("s") : item.ToString()));
+                        results.Add(new(ConfigurationPath.Combine(path.Reverse()), item is DateTime dt ? dt.ToString("s") : item.ToString()));
                     }
                 }
                 else
@@ -120,7 +120,7 @@ public static class PublicExtensions
                     var subitems = ToSettingItems(item, path, logger);
                     results.AddRange(subitems);
                 }
-                path.Remove(path.Last());
+                path.Pop();
 
 
                 i++;
@@ -135,7 +135,7 @@ public static class PublicExtensions
             {
                 if (obj is not DictionaryEntry || prop.Name != "Value")
                 {
-                    path.Add(prop.Name);
+                    path.Push(prop.Name);
                 }
 
                 if (prop.GetValue(obj) is object value)
@@ -143,7 +143,7 @@ public static class PublicExtensions
 
                     if (prop.PropertyType.IsSimple())
                     {
-                        results.Add(new(ConfigurationPath.Combine(path), value is DateTime dt ? dt.ToString("s") : value.ToString()));
+                        results.Add(new(ConfigurationPath.Combine(path.Reverse()), value is DateTime dt ? dt.ToString("s") : value.ToString()));
                     }
                     else
                     {
@@ -152,12 +152,12 @@ public static class PublicExtensions
                 }
                 else
                 {
-                    results.Add(new(ConfigurationPath.Combine(path), null)); // { MarkedForDeletion = true });
+                    results.Add(new(ConfigurationPath.Combine(path.Reverse()), null)); // { MarkedForDeletion = true });
                 }
 
                 if (obj is not DictionaryEntry || prop.Name != "Value")
                 {
-                    path.Remove(path.Last());
+                    path.Pop();
                 }
             }
             catch (TargetParameterCountException)
