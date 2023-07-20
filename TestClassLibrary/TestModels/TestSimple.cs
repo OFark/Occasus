@@ -22,6 +22,6 @@ namespace TestClassLibrary.TestModels
         [RestartRequired]
         public bool TestBoolean { get; set; }
         public bool? TestNullableBool { get; set; }
-
+        public Guid TestGuid { get; set; }
     }
 }

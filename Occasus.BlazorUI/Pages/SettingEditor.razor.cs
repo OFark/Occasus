@@ -116,6 +116,12 @@ public partial class SettingEditor
         set => SetValue(value);
     }
 
+    private Guid? ValueGuid
+    {
+        get => Value as Guid?;
+        set => SetValue(value);
+    }
+
     private string? ValueString
     {
         get => Value?.ToString();

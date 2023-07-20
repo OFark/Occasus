@@ -52,6 +52,10 @@ else if (nonNullableType == typeof(bool))
         <MudCheckBox @bind-Checked=ValueBool Validation=Validation Class=@Class Variant=@inputVariant Label=@Label Color=Color.Success T=bool? Required=@Required RequiredError=@RequiredMessage></MudCheckBox>
     </div>
 }
+else if(nonNullableType == typeof(Guid))
+{
+    <MudTextField @bind-Value=ValueGuid Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label InputType=@InputType Required=@Required RequiredError=@RequiredMessage Immediate=false TextUpdateSuppression=false Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed"></MudTextField>
+}
 else
 {
     <MudTextField @bind-Value=ValueString Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label InputType=@InputType Required=@Required RequiredError=@RequiredMessage Immediate=true TextUpdateSuppression=false Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick autocomplete="new-password" OnKeyUp="KeyPressed"></MudTextField>
