@@ -49,13 +49,26 @@ else if (nonNullableType == typeof(TimeSpan))
 else if (nonNullableType == typeof(bool))
 {
     <div>
-        <MudCheckBox @bind-Checked=ValueBool Validation=Validation Class=@Class Variant=@inputVariant Label=@Label Color=Color.Success T=bool? Required=@Required RequiredError=@RequiredMessage></MudCheckBox>
+        <MudCheckBox @bind-Checked=ValueBool TriState=Type.IsNullable() Validation=Validation Class=@Class Variant=@inputVariant Label=@Label Color=Color.Success T=bool? Required=@Required RequiredError=@RequiredMessage></MudCheckBox>
     </div>
 }
 else if(nonNullableType == typeof(Guid))
 {
     <MudTextField @bind-Value=ValueGuid Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label InputType=@InputType Required=@Required RequiredError=@RequiredMessage Immediate=false TextUpdateSuppression=false Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed"></MudTextField>
 }
+else if (nonNullableType.IsEnum)
+{
+    <MudSelect @bind-Value=ValueEnum Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label Required=@Required RequiredError=@RequiredMessage Immediate=false TextUpdateSuppression=false Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick>
+        @if(Type.IsNullable())
+        {
+            <MudSelectItem T="int?" Value="@(null)">Select an option:</MudSelectItem>
+        }
+        @foreach(var item in GetEnumValues())
+        {
+            <MudSelectItem T=int? Value="item.Value">@item.Key</MudSelectItem>
+        }
+    </MudSelect>
+               }
 else
 {
     <MudTextField @bind-Value=ValueString Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label InputType=@InputType Required=@Required RequiredError=@RequiredMessage Immediate=true TextUpdateSuppression=false Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick autocomplete="new-password" OnKeyUp="KeyPressed"></MudTextField>

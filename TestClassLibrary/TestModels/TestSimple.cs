@@ -12,7 +12,7 @@ namespace TestClassLibrary.TestModels
         [Input(InputType.Password)]
         public string? TestPassword { get; set; }
         public int TestInteger { get; set; }
-        public int TestNullableInteger { get; set; }
+        public int? TestNullableInteger { get; set; }
         public decimal TestDecimal { get; set; }
         public decimal? TestNullableDecimal { get; set; }
         public float TestFloat { get; set; }
@@ -23,5 +23,8 @@ namespace TestClassLibrary.TestModels
         public bool TestBoolean { get; set; }
         public bool? TestNullableBool { get; set; }
         public Guid TestGuid { get; set; }
+        public TestEnum TestEnum { get; set; }
+        public TestEnum? TestNullableEnum { get; set; }
     }
+
 }

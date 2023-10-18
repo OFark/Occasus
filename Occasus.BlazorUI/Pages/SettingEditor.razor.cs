@@ -92,6 +92,12 @@ public partial class SettingEditor
         set => SetValue(value);
     }
 
+    private int? ValueEnum
+    {
+        get => Value is null ? null : (int)Value;
+        set => SetValue(value);
+    }
+
     private float? ValueFloat
     {
         get => Value as float?;
@@ -182,7 +188,25 @@ public partial class SettingEditor
     }
     private void SetValue(object? value)
     {
+        if(nonNullableType.IsEnum && value is not null && Enum.ToObject(nonNullableType, value) is object eVal)
+        {
+            value = eVal;
+        }
+
         Value = Type.IsNullable() ? value : value ?? default;
         ValueChanged.InvokeAsync(Value);
+    }
+
+    private Dictionary<string, int> GetEnumValues()
+    {
+        var vals = new Dictionary<string, int>();
+        foreach (var eVal in Enum.GetValues(nonNullableType))
+        {
+            if (Enum.GetName(nonNullableType, eVal) is string eValName)
+            {
+                vals.Add(eValName, (int)eVal);
+            }
+        }
+        return vals;
     }
 }

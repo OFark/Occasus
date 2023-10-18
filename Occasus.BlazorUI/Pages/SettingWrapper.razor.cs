@@ -95,6 +95,13 @@ public partial class SettingWrapper
                 var length = SettingProperty.PropertyInfo.GetIndexParameters().Length;
                 _value = SettingProperty.PropertyInfo.GetValue(POCO, Enumerable.Range(0, length).Cast<object>().ToArray());
             }
+            else if(SettingProperty.NotNullType.IsEnum)
+            {
+                _value = POCO is null ? null : 
+                    Enum.TryParse(SettingProperty.NotNullType, SettingProperty.PropertyInfo.GetValue(POCO)?.ToString(), out var eVal) && eVal is not null ?
+                        (int)eVal:
+                        null;
+            }
             else
             {
                 _value = POCO is null ? null : SettingProperty?.PropertyInfo.GetValue(POCO);
