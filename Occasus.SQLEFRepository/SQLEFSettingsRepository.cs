@@ -40,6 +40,31 @@ public class SQLEFSettingsRepository : SettingsRepositoryBase, IOptionsStorageRe
         DBContextOptionsBuilder.UseSqlServer(SQLSettings.ConnectionString, SQLSettings.SqlServerDbContextOptionsBuilder);
 
     }
+
+    internal SQLEFSettingsRepository(Action<SQLEFSourceSettings> settings, Action<DbContextOptionsBuilder<OccasusContext>> context)
+    {
+        SQLSettings = new();
+
+        settings(SQLSettings);
+
+        if (SQLSettings.ConnectionString is null)
+        {
+            throw new ArgumentNullException(nameof(SQLSettings.ConnectionString), $"Connection String can either be built with the {nameof(SQLSettings.WithSQLConnection)} parameter, or specified directly in the {nameof(SQLEFSourceSettings.ConnectionString)} parameter");
+        }
+
+        if (SQLSettings.EncryptSettings && SQLSettings.EncryptionKey?.Length < 12)
+        {
+            SQLSettings.EncryptSettings = false;
+            Messages = new()
+            {
+                "Encryption Disabled: Encryption key must be at least 12 characters"
+            };
+        }
+
+        DBContextOptionsBuilder = new();
+        context(DBContextOptionsBuilder);
+    }
+
     private string CheckTableExistsQuery => $"SELECT COUNT(*) FROM information_schema.TABLES WHERE (TABLE_NAME = '{SQLSettings.TableName}')";
     private string CreateTableCommand => $"CREATE TABLE dbo.[{SQLSettings.TableName}] ([{SQLSettings.KeyColumnName}] varchar(255) NOT NULL,[{SQLSettings.ValueColumnName}] nvarchar(MAX) NOT NULL) ON[PRIMARY]; ALTER TABLE dbo.[{SQLSettings.TableName}] ADD CONSTRAINT PK_{SQLSettings.TableName.Replace(" ", "_")} PRIMARY KEY CLUSTERED([{SQLSettings.KeyColumnName}]) WITH(STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON[PRIMARY]; ALTER TABLE dbo.[{SQLSettings.TableName}] SET(LOCK_ESCALATION = TABLE)";
     OccasusContext CreateDbContext() => new(DBContextOptionsBuilder.Options, SQLSettings);
@@ -149,8 +174,8 @@ public class SQLEFSettingsRepository : SettingsRepositoryBase, IOptionsStorageRe
     private async Task PersistValue(SettingStorage ss, CancellationToken cancellation = default)
     {
         Logger?.LogTrace("Persisting Settings to SQL");
-        using var connection = new SqlConnection(SQLSettings.ConnectionString);
-        await connection.OpenAsync(cancellation).ConfigureAwait(false);
+        //using var connection = new SqlConnection(SQLSettings.ConnectionString);
+        //await connection.OpenAsync(cancellation).ConfigureAwait(false);
         var key = ss.Name;
         var itemValue = ss.Value;
 

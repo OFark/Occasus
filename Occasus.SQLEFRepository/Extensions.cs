@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Occasus.Options;
@@ -17,6 +18,15 @@ namespace Occasus.SQLEFRepository
         public static IOptionsStorageRepository UseOptionsFromSQLEF(this IConfigurationBuilder configuration, Action<SQLEFSourceSettings> settings)
         {
             var storageRepository = new SQLEFSettingsRepository(settings);
+
+            configuration.AddOccasusStorageRepository(storageRepository);
+
+            return storageRepository;
+        }
+
+        public static IOptionsStorageRepository UseOptionsFromSQLEF(this IConfigurationBuilder configuration, Action<SQLEFSourceSettings> settings, Action<DbContextOptionsBuilder<OccasusContext>> context)
+        {
+            var storageRepository = new SQLEFSettingsRepository(settings, context);
 
             configuration.AddOccasusStorageRepository(storageRepository);
 
