@@ -14,6 +14,9 @@ namespace Occasus.SQLEFRepository
         public static IOptionsStorageRepositoryWithServices UseOptionsFromSQLEF(this WebApplicationBuilder builder, Action<SQLEFSourceSettings> settings)
             => builder.Configuration.UseOptionsFromSQLEF(settings).AddServices(builder.Services);
 
+        public static IOptionsStorageRepositoryWithServices UseOptionsFromSQLEF(this WebApplicationBuilder builder, Action<SQLEFSourceSettings> settings, Action<DbContextOptionsBuilder<OccasusContext>> context)
+            => builder.Configuration.UseOptionsFromSQLEF(settings, context).AddServices(builder.Services);
+
 
         public static IOptionsStorageRepository UseOptionsFromSQLEF(this IConfigurationBuilder configuration, Action<SQLEFSourceSettings> settings)
         {
