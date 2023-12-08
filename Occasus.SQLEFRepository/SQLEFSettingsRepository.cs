@@ -62,7 +62,17 @@ public class SQLEFSettingsRepository : SettingsRepositoryBase, IOptionsStorageRe
 
     private string CheckTableExistsQuery => $"SELECT COUNT(*) FROM information_schema.TABLES WHERE (TABLE_NAME = '{SQLSettings.TableName}')";
     private string CreateTableCommand => $"CREATE TABLE dbo.[{SQLSettings.TableName}] ([{SQLSettings.KeyColumnName}] varchar(255) NOT NULL,[{SQLSettings.ValueColumnName}] nvarchar(MAX) NOT NULL) ON[PRIMARY]; ALTER TABLE dbo.[{SQLSettings.TableName}] ADD CONSTRAINT PK_{SQLSettings.TableName.Replace(" ", "_")} PRIMARY KEY CLUSTERED([{SQLSettings.KeyColumnName}]) WITH(STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON[PRIMARY]; ALTER TABLE dbo.[{SQLSettings.TableName}] SET(LOCK_ESCALATION = TABLE)";
-    OccasusContext CreateDbContext() => new(DBContextOptionsBuilder.Options, SQLSettings);
+    OccasusContext CreateDbContext()
+    {
+        var context = new OccasusContext(DBContextOptionsBuilder.Options, SQLSettings);
+        if(!context.Database.CanConnect())
+        {
+            context.Database.OpenConnection();
+        }
+
+        return context;
+    }
+
     private string LoadQuery => $"SELECT [{SQLSettings.KeyColumnName}], [{SQLSettings.ValueColumnName}] FROM [{SQLSettings.TableName}]";
 
     public override async Task ClearSettings(string? className = null, CancellationToken cancellation = default)
@@ -135,7 +145,7 @@ public class SQLEFSettingsRepository : SettingsRepositoryBase, IOptionsStorageRe
 
         var dic = new Dictionary<string, string>();
         using var dbContext = CreateDbContext();
-
+        
         return await dbContext.Settings.Where(x => !string.IsNullOrWhiteSpace(x.Key) && x.Value != null)
                           .ToDictionaryAsync(x => x.Key, DecryptValue, cancellation).ConfigureAwait(false);
     }
