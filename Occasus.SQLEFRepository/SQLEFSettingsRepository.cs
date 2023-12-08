@@ -1,11 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Occasus.Helpers;
 using Occasus.Options;
 using Occasus.Repository.Interfaces;
 using Occasus.Settings.Models;
 using Occasus.SQLEFRepository.Models;
-using System.Data.SqlClient;
 using System.Diagnostics;
 
 namespace Occasus.SQLEFRepository;
@@ -169,8 +169,8 @@ public class SQLEFSettingsRepository : SettingsRepositoryBase, IOptionsStorageRe
     private async Task PersistValue(SettingStorage ss, CancellationToken cancellation = default)
     {
         Logger?.LogTrace("Persisting Settings to SQL");
-        //using var connection = new SqlConnection(SQLSettings.ConnectionString);
-        //await connection.OpenAsync(cancellation).ConfigureAwait(false);
+        using var connection = new SqlConnection(SQLSettings.ConnectionString);
+        await connection.OpenAsync(cancellation).ConfigureAwait(false);
         var key = ss.Name;
         var itemValue = ss.Value;
 

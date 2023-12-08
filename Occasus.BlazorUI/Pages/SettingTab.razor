@@ -2,7 +2,7 @@
 @using Occasus.Helpers
 @using System.Collections
 
-<MudTabPanel Text="@CardTitle" Icon="@(Setting.RequiresRestart ? Icons.Rounded.RestartAlt : null)">
+<MudTabPanel Text="@CardTitle" Icon="@(Setting.RequiresRestart ? Icons.Material.Rounded.RestartAlt : null)">
     <EditForm @bind-IsValid=formIsValid @ref=form id=@formId Model=@Setting.Value OnValidSubmit=OnValidSubmit OnInvalidSubmit=OnInvalidSubmit>
         <DataAnnotationsValidator />
 
@@ -22,10 +22,10 @@
         }
         <ValidationSummary />
         <MudToolBar DisableGutters="true" Class="gap-3">
-            <MudButton ButtonType=ButtonType.Submit FullWidth=true Variant=Variant.Outlined Disabled=!Setting.HasChanged StartIcon=@Icons.Rounded.Save IconColor=@(Setting.HasChanged ? Color.Success : Color.Inherit)>Save</MudButton>
-            <MudButton OnClick="CopyToClipboard" FullWidth=true Variant=Variant.Outlined Disabled=Setting.IsDefault StartIcon=@Icons.Rounded.ContentCopy IconColor=Color.Secondary>Copy</MudButton>
-            <MudButton OnClick="PasteFromClipboard" FullWidth=true Variant=Variant.Outlined Disabled=Setting.IsDefault StartIcon=@Icons.Rounded.ContentPaste IconColor=Color.Secondary>Paste</MudButton>
-            <MudButton OnClick="Clear" FullWidth=true Variant=Variant.Outlined Disabled=Setting.IsDefault StartIcon=@Icons.Rounded.Clear IconColor=Color.Warning>Clear</MudButton>
+            <MudButton ButtonType=ButtonType.Submit FullWidth=true Variant=Variant.Outlined Disabled=!Setting.HasChanged StartIcon=@Icons.Material.Rounded.Save IconColor=@(Setting.HasChanged ? Color.Success : Color.Inherit)>Save</MudButton>
+            <MudButton OnClick="CopyToClipboard" FullWidth=true Variant=Variant.Outlined Disabled=Setting.IsDefault StartIcon=@Icons.Material.Rounded.ContentCopy IconColor=Color.Secondary>Copy</MudButton>
+            <MudButton OnClick="PasteFromClipboard" FullWidth=true Variant=Variant.Outlined Disabled=Setting.IsDefault StartIcon=@Icons.Material.Rounded.ContentPaste IconColor=Color.Secondary>Paste</MudButton>
+            <MudButton OnClick="Clear" FullWidth=true Variant=Variant.Outlined Disabled=Setting.IsDefault StartIcon=@Icons.Material.Rounded.Clear IconColor=Color.Warning>Clear</MudButton>
         </MudToolBar>
     </EditForm>
 </MudTabPanel>

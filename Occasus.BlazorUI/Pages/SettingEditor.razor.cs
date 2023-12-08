@@ -153,7 +153,7 @@ public partial class SettingEditor
     protected override void OnInitialized()
     {
 
-        AdornmentIcon = TypeOfInput == InputType.Password ? Icons.Rounded.Password : null;
+        AdornmentIcon = TypeOfInput == InputType.Password ? Icons.Material.Rounded.Password : null;
 
         nonNullableType = Type.NonNullableType();
 

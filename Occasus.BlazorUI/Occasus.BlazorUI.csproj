@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <StaticWebAssetBasePath>occasus</StaticWebAssetBasePath>
     <IsPackable>true</IsPackable>
-    <Version>6.0.0</Version>
+    <Version>7.0.0</Version>
     <Authors>OFark</Authors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Company />
@@ -60,7 +60,7 @@
 
   <ItemGroup>
     <PackageReference Include="MudBlazor.ThemeManager" Version="1.0.8" />
-    <PackageReference Include="LanguageExt.Core" Version="4.4.6" />
+    <PackageReference Include="LanguageExt.Core" Version="4.4.7" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.133">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

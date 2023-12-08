@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>6.0.0</Version>
+    <Version>7.0.0</Version>
     <Authors>OFark</Authors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Company />
@@ -24,8 +24,8 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Humanizer.Core" Version="2.14.1" />
-    <PackageReference Include="LanguageExt.Core" Version="4.4.6" />
-    <PackageReference Include="MudBlazor" Version="6.11.0" />
+    <PackageReference Include="LanguageExt.Core" Version="4.4.7" />
+    <PackageReference Include="MudBlazor" Version="6.11.1" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.133">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

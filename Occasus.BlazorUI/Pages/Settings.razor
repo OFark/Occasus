@@ -23,20 +23,20 @@
         <MudSpacer />
         <MudToolBar DisableGutters=true Class="gap-3">
             <MudTooltip Text="Reload Settings">
-                <MudButton StartIcon=@Icons.Rounded.Refresh Variant="Variant.Outlined" IconColor="Color.Info" Color="Color.Inherit" OnClick=ReloadSettings>Reload</MudButton>
+                <MudButton StartIcon=@Icons.Material.Rounded.Refresh Variant="Variant.Outlined" IconColor="Color.Info" Color="Color.Inherit" OnClick=ReloadSettings>Reload</MudButton>
             </MudTooltip>
 
             <MudTooltip Text="Clear All Settings">
-                <MudButton StartIcon=@Icons.Rounded.ClearAll Variant="Variant.Outlined" IconColor="Color.Warning" Color="Color.Inherit" OnClick=ClearSettings>Clear All</MudButton>
+                <MudButton StartIcon=@Icons.Material.Rounded.ClearAll Variant="Variant.Outlined" IconColor="Color.Warning" Color="Color.Inherit" OnClick=ClearSettings>Clear All</MudButton>
             </MudTooltip>
             @if (!string.IsNullOrWhiteSpace(uiPassword))
             {
                 <MudTooltip Text="Logout">
-                    <MudButton StartIcon=@Icons.Rounded.Logout Variant="Variant.Outlined" IconColor="Color.Surface" Color="Color.Inherit" OnClick=Logout>Logout</MudButton>
+                    <MudButton StartIcon=@Icons.Material.Rounded.Logout Variant="Variant.Outlined" IconColor="Color.Surface" Color="Color.Inherit" OnClick=Logout>Logout</MudButton>
                 </MudTooltip>
             }
             <MudTooltip Text="Restart the application">
-                <MudButton StartIcon=@Icons.Rounded.Warning Variant="Variant.Outlined" IconColor="Color.Error" Color="Color.Inherit" OnClick=FullRestart>Restart</MudButton>
+                <MudButton StartIcon=@Icons.Material.Rounded.Warning Variant="Variant.Outlined" IconColor="Color.Error" Color="Color.Inherit" OnClick=FullRestart>Restart</MudButton>
             </MudTooltip>
         </MudToolBar>
 

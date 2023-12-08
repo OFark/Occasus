@@ -69,14 +69,14 @@
                                 <MudIconButton Class="ml-2 pa-1" Color="Color.Error" Icon="@Icons.Material.Filled.Remove" OnClick="(_) => RemoveValue(context.ID)" />
                             </TabPanelHeader>
                             <Header>
-                                <MudIconButton Class="mr-3 pa-1" Icon="@Icons.Rounded.Add" OnClick="@(() => AddNewValue())" />
+                                <MudIconButton Class="mr-3 pa-1" Icon="@Icons.Material.Rounded.Add" OnClick="@(() => AddNewValue())" />
                             </Header>
 
                         </MudTabs>
                     }
                     else
                     {
-                        <MudButton Class="mr-3 pa-1" StartIcon="@Icons.Rounded.Add" IconColor="Color.Success" OnClick="@(() => AddNewValue())">@NewKey</MudButton>
+                        <MudButton Class="mr-3 pa-1" StartIcon="@Icons.Material.Rounded.Add" IconColor="Color.Success" OnClick="@(() => AddNewValue())">@NewKey</MudButton>
                     }
 
                     <MudOverlay Visible="_addNewValue" DarkBackground="true" Absolute="true">
@@ -89,8 +89,8 @@
                                 </MudItem>
                                 <MudItem xs="12">
                                     <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Class="justify-content-center">
-                                        <MudButton OnClick="@(e => AddValue())" StartIcon="@Icons.Rounded.Add" IconColor="Color.Success">Add</MudButton>
-                                        <MudButton OnClick="@(e => _addNewValue = false)" StartIcon="@Icons.Rounded.Cancel" IconColor="Color.Warning">Cancel</MudButton>
+                                        <MudButton OnClick="@(e => AddValue())" StartIcon="@Icons.Material.Rounded.Add" IconColor="Color.Success">Add</MudButton>
+                                        <MudButton OnClick="@(e => _addNewValue = false)" StartIcon="@Icons.Material.Rounded.Cancel" IconColor="Color.Warning">Cancel</MudButton>
                                     </MudButtonGroup>
                                 </MudItem>
                             </MudGrid>
@@ -136,7 +136,7 @@
                 }
                 else
                 {
-                    <MudButton StartIcon="@Icons.Rounded.Add" IconColor="Color.Success" OnClick="AddValue">Add @NewKey</MudButton>
+                    <MudButton StartIcon="@Icons.Material.Rounded.Add" IconColor="Color.Success" OnClick="AddValue">Add @NewKey</MudButton>
                 }
             </MudCardActions>
         </MudCard>
