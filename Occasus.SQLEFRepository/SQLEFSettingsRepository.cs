@@ -47,11 +47,6 @@ public class SQLEFSettingsRepository : SettingsRepositoryBase, IOptionsStorageRe
 
         settings(SQLSettings);
 
-        if (SQLSettings.ConnectionString is null)
-        {
-            throw new ArgumentNullException(nameof(SQLSettings.ConnectionString), $"Connection String can either be built with the {nameof(SQLSettings.WithSQLConnection)} parameter, or specified directly in the {nameof(SQLEFSourceSettings.ConnectionString)} parameter");
-        }
-
         if (SQLSettings.EncryptSettings && SQLSettings.EncryptionKey?.Length < 12)
         {
             SQLSettings.EncryptSettings = false;
