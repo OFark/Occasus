@@ -1,10 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging;
 using Occasus.Helpers;
 using Occasus.Options;
 using Occasus.Repository.Interfaces;
 using Occasus.Settings.Models;
-using System.Data.SqlClient;
 using System.Diagnostics;
 
 namespace Occasus.SQLRepository;

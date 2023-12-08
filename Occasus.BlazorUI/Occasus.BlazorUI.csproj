@@ -60,7 +60,6 @@
 
   <ItemGroup>
     <PackageReference Include="MudBlazor.ThemeManager" Version="1.0.8" />
-    <PackageReference Include="LanguageExt.Core" Version="4.4.7" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.133">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
