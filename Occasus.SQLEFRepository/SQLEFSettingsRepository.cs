@@ -65,10 +65,7 @@ public class SQLEFSettingsRepository : SettingsRepositoryBase, IOptionsStorageRe
     OccasusContext CreateDbContext()
     {
         var context = new OccasusContext(DBContextOptionsBuilder.Options, SQLSettings);
-        if(!context.Database.CanConnect())
-        {
-            context.Database.OpenConnection();
-        }
+        context.Database.OpenConnection();
 
         return context;
     }
