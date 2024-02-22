@@ -21,12 +21,15 @@ namespace Occasus.BlazorUI.Pages
         public Action<object?>? OnSave { get; set; }
 
         [Parameter]
+        public Action<object?>? OnDelete { get; set; }
+
+        [Parameter]
         public string? Title { get; set; }
 
         [Parameter]
         public bool HideTitle { get; set; }
 
-        public string CardTitle => Title ?? Setting.Type.Name.Humanize();
+        public string CardTitle => Title ?? Setting.Type.Name.Humanize().Singularize();
 
         private IEnumerable<SettingProperty> editableProperties = default!;
 
@@ -53,6 +56,12 @@ namespace Occasus.BlazorUI.Pages
         private async Task OnInvalidSubmit(EditContext context)
         {
             await InvokeAsync(StateHasChanged);
+        }
+
+        private void Delete(object? x)
+        {
+            OnDelete?.Invoke(x);
+            StateHasChanged();
         }
 
         private void Save(object? x)

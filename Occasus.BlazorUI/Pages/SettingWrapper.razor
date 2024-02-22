@@ -123,7 +123,7 @@
                         }
                         else
                         {
-                            <SettingCard Setting=@(new Occasus.Settings.Models.SettingBox(ValueType, null, item)) OnSave=@(value => ChangeListItem(value, index)) />
+                            <SettingCard Setting=@(new Occasus.Settings.Models.SettingBox(ValueType, null, item)) OnSave=@(value => ChangeListItem(value, index)) OnDelete="@(value => RemoveValue(index))" />
                         }
                         i++;
                     }
