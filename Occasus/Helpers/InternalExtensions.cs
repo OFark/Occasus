@@ -161,10 +161,7 @@ public static class PublicExtensions
             }
             catch (TargetParameterCountException)
             {
-                if (logger is not null)
-                {
-                    logger.LogWarning("Unable to gather this value from {type}", prop.Name);
-                }
+                logger?.LogWarning("Unable to gather this value from {type}", prop.Name);
             }
         }
 

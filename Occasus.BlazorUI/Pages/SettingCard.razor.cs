@@ -36,10 +36,9 @@ namespace Occasus.BlazorUI.Pages
 
         private IEnumerable<SettingProperty> editableProperties = default!;
 
-        private string mudTheme => Disabled ? "mud-theme-error" : "mud-theme-secondary";
+        private string MudTheme => Disabled ? "mud-theme-error" : "mud-theme-secondary";
 
-
-        ValidateOptionsResult? validateOptionsResult;
+        private ValidateOptionsResult? validateOptionsResult;
 
         protected override async Task OnInitializedAsync()
         {

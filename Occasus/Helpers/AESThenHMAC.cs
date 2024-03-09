@@ -154,7 +154,7 @@ public class AESThenHMAC
             throw new ArgumentException("Secret Message Required!", nameof(secretMessage));
 
         //non-secret payload optional
-        nonSecretPayload ??= Array.Empty<byte>();
+        nonSecretPayload ??= [];
 
         byte[] cipherText;
         byte[] iv;
@@ -294,7 +294,7 @@ public class AESThenHMAC
     /// </remarks>
     public static byte[] SimpleEncryptWithPassword(byte[] secretMessage, string password, byte[]? nonSecretPayload = null)
     {
-        nonSecretPayload ??= Array.Empty<byte>();
+        nonSecretPayload ??= [];
 
         //User Error Checks
         if (string.IsNullOrWhiteSpace(password) || password.Length < MinPasswordLength)
@@ -364,6 +364,11 @@ public class AESThenHMAC
 
         var cryptSalt = new byte[SaltBitSize / 8];
         var authSalt = new byte[SaltBitSize / 8];
+
+        if(encryptedMessage.Length < cryptSalt.Length + authSalt.Length) 
+        {
+            return null;
+        }
 
         //Grab Salt from Non-Secret Payload
         Array.Copy(encryptedMessage, nonSecretPayloadLength, cryptSalt, 0, cryptSalt.Length);

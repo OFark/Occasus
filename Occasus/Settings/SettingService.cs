@@ -59,7 +59,7 @@ namespace Occasus.Settings
             var valid = Validate(setting);
             if (!valid.Failed)
             {
-                await setting.PersistSettingToStorageAsync(logger, cancellation).ConfigureAwait(false);
+                await setting.PersistSettingToStorageAsync(cancellation).ConfigureAwait(false);
             }
 
             return valid;

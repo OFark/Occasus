@@ -28,10 +28,10 @@ namespace Occasus.BlazorUI.Pages
 
         [Parameter]
         public CancellationToken Token { get; set; } = new CancellationTokenSource().Token;
-        private string? formId => $"form_{Setting.Type.Name}";
+        private string? FormId => $"form_{Setting.Type.Name}";
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await JS.InvokeVoidAsync("PreventEnterKey", formId).ConfigureAwait(false);
+            await JS.InvokeVoidAsync("PreventEnterKey", FormId).ConfigureAwait(false);
         }
 
         protected override async Task OnInitializedAsync()

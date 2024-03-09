@@ -22,15 +22,15 @@ namespace Occasus.BlazorUI.Pages
 
         private readonly CancellationTokenSource cts = new();
 
-        private string? uiPassword => Configuration["OccasusUI:Password"];
+        private string? UiPassword => Configuration["OccasusUI:Password"];
         private string? password;
 
-        private bool authenticated => uiPassword == password;
+        private bool Authenticated => UiPassword == password;
 
 
         protected override async Task OnInitializedAsync()
         {
-            if (string.IsNullOrWhiteSpace(uiPassword) || uiPassword == password)
+            if (string.IsNullOrWhiteSpace(UiPassword) || UiPassword == password)
             {
                 settings = SettingService.GetSettings();
             }
@@ -40,17 +40,17 @@ namespace Occasus.BlazorUI.Pages
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (firstRender && !string.IsNullOrWhiteSpace(uiPassword))
+            if (firstRender && !string.IsNullOrWhiteSpace(UiPassword))
             {
                 await InvokeAsync(async () => password = (await ProtectedSessionStore.GetAsync<string>(nameof(password)).ConfigureAwait(false)).Value);
             }
 
-            if (!string.IsNullOrWhiteSpace(uiPassword) && uiPassword != password)
+            if (!string.IsNullOrWhiteSpace(UiPassword) && UiPassword != password)
             {
                 var dialog = DialogService.Show<PasswordDialog>("Password");
                 var result = await dialog.Result;
 
-                if (!result.Cancelled)
+                if (!result.Canceled)
                 {
 
                     if (result.Data?.ToString() is string pw && !string.IsNullOrWhiteSpace(pw))
@@ -60,7 +60,7 @@ namespace Occasus.BlazorUI.Pages
                     }
                 }
 
-                if (string.IsNullOrWhiteSpace(uiPassword) || uiPassword == password)
+                if (string.IsNullOrWhiteSpace(UiPassword) || UiPassword == password)
                 {
                     settings = SettingService.GetSettings();
                 }

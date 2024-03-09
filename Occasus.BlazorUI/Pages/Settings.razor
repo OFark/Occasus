@@ -3,7 +3,7 @@
 
 <PageTitle>Occasus</PageTitle>
 
-@if (authenticated)
+@if (Authenticated)
 {
 
     <MudContainer MaxWidth=MaxWidth.ExtraLarge Class="py-6 pb-12" Style="margin-bottom: var(--mud-appbar-height);">
@@ -29,7 +29,7 @@
             <MudTooltip Text="Clear All Settings">
                 <MudButton StartIcon=@Icons.Material.Rounded.ClearAll Variant="Variant.Outlined" IconColor="Color.Warning" Color="Color.Inherit" OnClick=ClearSettings>Clear All</MudButton>
             </MudTooltip>
-            @if (!string.IsNullOrWhiteSpace(uiPassword))
+            @if (!string.IsNullOrWhiteSpace(UiPassword))
             {
                 <MudTooltip Text="Logout">
                     <MudButton StartIcon=@Icons.Material.Rounded.Logout Variant="Variant.Outlined" IconColor="Color.Surface" Color="Color.Inherit" OnClick=Logout>Logout</MudButton>

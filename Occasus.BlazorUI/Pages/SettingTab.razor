@@ -3,7 +3,7 @@
 @using System.Collections
 
 <MudTabPanel Text="@CardTitle" Icon="@(Setting.RequiresRestart ? Icons.Material.Rounded.RestartAlt : null)">
-    <EditForm @bind-IsValid=formIsValid @ref=form id=@formId Model=@Setting.Value OnValidSubmit=OnValidSubmit OnInvalidSubmit=OnInvalidSubmit>
+    <EditForm @bind-IsValid=formIsValid @ref=form id=@FormId Model=@Setting.Value OnValidSubmit=OnValidSubmit OnInvalidSubmit=OnInvalidSubmit>
         <DataAnnotationsValidator />
 
         @foreach (var settingProperty in editableProperties)

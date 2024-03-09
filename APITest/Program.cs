@@ -16,7 +16,7 @@ builder.AddOccasusUI()
 .UseOptionsFromSQLEF(settings =>
 {
     settings.EncryptSettings = true;
-    settings.EncryptionKey = "mypassword";
+    settings.EncryptionKey = "mypasswordneedstobelonger";
     settings.WithSQLConnection(sqlConnBuilder =>
     {
         sqlConnBuilder.ConnectionString = builder.Configuration["ConnectionStrings:SettingsConnectionString"];
@@ -37,7 +37,7 @@ builder.AddOccasusUI()
     .WithOptions<TestDictionaries>(out var optionsBuilder);
     
 
-optionsBuilder.Validate(x => x.TestDictionaryStringStrings != null && x.TestDictionaryStringStrings.Any(), "Test DictionaryStrings must have some value");
+optionsBuilder.Validate(x => x.TestDictionaryStringStrings != null && x.TestDictionaryStringStrings.Count != 0, "Test DictionaryStrings must have some value");
 
 
 builder.UseOptionsFromJsonFile("appsettings.json", settings =>

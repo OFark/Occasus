@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
-using MudBlazor;
+﻿using MudBlazor;
 using MudBlazor.ThemeManager;
-using Occasus.Settings;
 
 namespace Occasus.BlazorUI.Shared;
 
@@ -9,7 +7,7 @@ public partial class MainLayout
 {
     readonly MudTheme OccasusTheme = new()
     {
-        Palette = new Palette()
+        Palette = new PaletteLight()
         {
             Primary = "#10095a",
             Secondary = "#095A39",
@@ -27,7 +25,7 @@ public partial class MainLayout
         },
         Typography = new Typography()
         {
-            Default = new() { FontSize = "14pt", FontFamily = new string[] { "Ubuntu", "Helvetica", "Arial", "sans-serif" } }
+            Default = new() { FontSize = "14pt", FontFamily = ["Ubuntu", "Helvetica", "Arial", "sans-serif"] }
 
         }
     };
@@ -46,8 +44,6 @@ public partial class MainLayout
         _themeManager = value;
         StateHasChanged();
     }
-
-    private IReadOnlyList<string> messages = new List<string>();
 
     protected override void OnInitialized()
     {

@@ -50,7 +50,7 @@ public partial class SettingWrapper
     [Parameter, EditorRequired]
     public SettingProperty SettingProperty { get; set; } = default!;
 
-    private string mudTheme => Disabled ? "mud-theme-error" : "mud-theme-dark";
+    private string MudTheme => Disabled ? "mud-theme-error" : "mud-theme-dark";
 
     //This is not the POCO
     public object? Value
@@ -190,7 +190,7 @@ public partial class SettingWrapper
     {
         if (SettingProperty.NewValue is not null || SettingProperty.NotNullType.IsCollection())
         {
-            POCOService.AddValue(POCO, SettingProperty).Match(some => Value = some, () => { });
+            if(POCOService.AddValue(POCO, SettingProperty) is object val) Value = val;
             _useNewValue = true;
             _addNewValue = false;
         }
@@ -198,17 +198,17 @@ public partial class SettingWrapper
     private void ChangeDictionaryItem(object? value, object key)
     {
 
-        if (SettingProperty is not null)
+        if (SettingProperty is not null && POCOService.ChangeDictionaryItem(POCO, SettingProperty.PropertyInfo, value, key) is object val)
         {
-            POCOService.ChangeDictionaryItem(POCO, SettingProperty.PropertyInfo, value, key).Match(some => Value = some, () => { });
+            Value = val;
         }
     }
 
     private void ChangeListItem(object? value, int index)
     {
-        if (SettingProperty is not null)
-        {
-            POCOService.ChangeListItem(POCO, SettingProperty.PropertyInfo, value, index).Match(some => Value = some, () => { });
+        if (SettingProperty is not null && POCOService.ChangeListItem(POCO, SettingProperty.PropertyInfo, value, index) is object val)
+        { 
+            Value = val;
         }
     }
 
@@ -216,7 +216,10 @@ public partial class SettingWrapper
     {
         if (SettingProperty is not null)
         {
-            POCOService.RemoveValue(POCO, SettingProperty, index).Match(some => Value = some, () => { });
+            if(POCOService.RemoveValue(POCO, SettingProperty, index) is object val)
+            {
+                Value = val;
+            }
 
             if (DictionaryTabs is not null)
             {
@@ -230,7 +233,10 @@ public partial class SettingWrapper
     {
         if (SettingProperty is not null)
         {
-            POCOService.RemoveValueWithKey(POCO, SettingProperty.PropertyInfo, key).Match(some => Value = some, () => { });
+            if(POCOService.RemoveValueWithKey(POCO, SettingProperty.PropertyInfo, key) is object val)
+            {
+                Value = val;
+            }
 
             if (DictionaryTabs is not null)
             {

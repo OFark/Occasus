@@ -49,7 +49,7 @@ else if (nonNullableType == typeof(TimeSpan))
 else if (nonNullableType == typeof(bool))
 {
     <div>
-        <MudCheckBox @bind-Checked=ValueBool TriState=Type.IsNullable() Validation=Validation Class=@Class Variant=@inputVariant Label=@Label Color=Color.Success T=bool? Disabled=@Disabled Required=@Required RequiredError=@RequiredMessage></MudCheckBox>
+        <MudCheckBox @bind-Value=ValueBool TriState=Type.IsNullable() Validation=Validation Class=@Class Variant=@inputVariant Label=@Label Color=Color.Success T=bool? Disabled=@Disabled Required=@Required RequiredError=@RequiredMessage></MudCheckBox>
     </div>
 }
 else if(nonNullableType == typeof(Guid))

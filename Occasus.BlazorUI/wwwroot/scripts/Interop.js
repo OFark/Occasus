@@ -2,7 +2,7 @@
     var el = document.getElementById(id);
     if (el && !el.dataset.hasListener) {
         el.addEventListener("keydown", function (event) {
-            if (event.keyCode === 13) {
+            if (event.key === 'Enter') {
                 event.preventDefault();
                 return false;
             }

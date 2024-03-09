@@ -12,7 +12,7 @@
     else if (SettingProperty.NotNullType.IsDictionary())
     {
         <MudCard Class="list" Elevation=5>
-            <MudCardHeader Class="@($"pa-2 {mudTheme}")"><MudText Typo=Typo.h6>@Label</MudText></MudCardHeader>
+            <MudCardHeader Class="@($"pa-2 {MudTheme}")"><MudText Typo=Typo.h6>@Label</MudText></MudCardHeader>
                 <MudCardContent Class="pb-4">
                     @if (KeyType == typeof(string))
                 {
@@ -108,7 +108,7 @@
     {
         var i = 0;
         <MudCard Class="list" Elevation=5>
-            <MudCardHeader Class="@($"pa-2 {mudTheme}")"><MudText Typo=Typo.h6>@Label</MudText></MudCardHeader>
+            <MudCardHeader Class="@($"pa-2 {MudTheme}")"><MudText Typo=Typo.h6>@Label</MudText></MudCardHeader>
                 <MudCardContent Class="pb-4">
                     @if (Value is IEnumerable list)
                 {
