@@ -25,6 +25,11 @@ namespace TestClassLibrary.TestModels
         public Guid TestGuid { get; set; }
         public TestEnum TestEnum { get; set; }
         public TestEnum? TestNullableEnum { get; set; }
+
+        public string? TestInitSetter { get; init; }
+        public string? TestPrivateSetter { get; private set; }
+        public string? TestInternalSetter { get; internal set; }
+        public string? TestProtectedSetter { get; protected set; }
     }
 
 }

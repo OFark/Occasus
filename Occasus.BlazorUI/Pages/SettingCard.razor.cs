@@ -27,11 +27,16 @@ namespace Occasus.BlazorUI.Pages
         public string? Title { get; set; }
 
         [Parameter]
+        public bool Disabled { get; set; }
+
+        [Parameter]
         public bool HideTitle { get; set; }
 
         public string CardTitle => Title ?? Setting.Type.Name.Humanize().Singularize();
 
         private IEnumerable<SettingProperty> editableProperties = default!;
+
+        private string mudTheme => Disabled ? "mud-theme-error" : "mud-theme-secondary";
 
 
         ValidateOptionsResult? validateOptionsResult;

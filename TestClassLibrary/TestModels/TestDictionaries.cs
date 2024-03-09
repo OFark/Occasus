@@ -11,4 +11,5 @@ public class TestDictionaries
     public Dictionary<string, UserModel>? TestDictionaryStringUserModel { get; set; }
     public Dictionary<string, ListModel>? TestDictionaryStringCollections { get; set; }
     public Dictionary<string, DictionaryModel>? TestDictionaryStringDictionary { get; set; }
+    public Dictionary<string, string>? TestProtectedDictionaryStringStrings { get; protected set; }
 }

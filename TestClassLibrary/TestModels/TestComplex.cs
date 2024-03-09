@@ -13,5 +13,7 @@ public record TestComplex
 
     public UserModel? TestUserModel { get; set; }
 
+    public UserModel? TestInternalUserModel { get; internal set; }
+
 }
 

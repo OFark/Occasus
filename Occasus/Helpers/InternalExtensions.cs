@@ -26,8 +26,7 @@ internal static class InternalExtensions
             : null;
 
     internal static IEnumerable<PropertyInfo> GetOptionableProperties(this Type type) => type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                                                            .Where(p => p.CanWrite //Is writeable
-                                                                     && !p.PropertyType.IsAbstract //Isn't Abstract
+                                                            .Where(p => !p.PropertyType.IsAbstract //Isn't Abstract
                                                                      && (p.PropertyType.IsSimple() //Can be converted to from a string
                                                                       || (p.PropertyType.IsArray && p.PropertyType.GetElementType()!.IsSimple()) //Is an array of simples
                                                                       || p.PropertyType.CollectionType().IsSimple() //or the underlying (not nullable generic type) can be converted from a string

@@ -30,6 +30,9 @@ public partial class SettingEditor
     public bool Required { get; set; }
 
     [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
     public string? RequiredMessage { get; set; }
 
     [Parameter, EditorRequired]

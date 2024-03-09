@@ -7,14 +7,14 @@
     var type = SettingProperty.NotNullType;
     @if (type.IsSimple())
     {
-        <SettingEditor @bind-Value=Value Type=@SettingProperty.Type TypeOfInput=@InputType Required=@Required RequiredMessage=@RequiredMessage Label=@Label Validation=validationAttributes />
+        <SettingEditor @bind-Value=Value Type=@SettingProperty.Type TypeOfInput=@InputType Required=@Required RequiredMessage=@RequiredMessage Disabled=@Disabled Label=@Label Validation=validationAttributes />
     }
     else if (SettingProperty.NotNullType.IsDictionary())
     {
         <MudCard Class="list" Elevation=5>
-            <MudCardHeader Class="pa-2 mud-theme-dark"><MudText Typo=Typo.h6>@Label</MudText></MudCardHeader>
-            <MudCardContent Class="pb-4">
-                @if (KeyType == typeof(string))
+            <MudCardHeader Class="@($"pa-2 {mudTheme}")"><MudText Typo=Typo.h6>@Label</MudText></MudCardHeader>
+                <MudCardContent Class="pb-4">
+                    @if (KeyType == typeof(string))
                 {
                     if (ValueType.IsSimple())
                     {
@@ -27,21 +27,21 @@
                                         <tr>
                                             <td>
                                                 <MudText Class="pl-3">@kvp.Key</MudText>
-                                            </td>
+                                                </td>
 
-                                            <td>
-                                                <MudGrid Spacing="0">
-                                                    <SettingEditor Type=ValueType Value=kvp.Value ValueChanged=@((v) => ChangeDictionaryItem(v, kvp.Key)) ValueDeleted="(args) => RemoveValue(kvp.Key)" TypeOfInput=@InputType Label="Value" />
-                                                </MudGrid>
-                                            </td>
+                                                <td>
+                                                    <MudGrid Spacing="0">
+                                                        <SettingEditor Type=ValueType Value=kvp.Value ValueChanged=@((v) => ChangeDictionaryItem(v, kvp.Key)) ValueDeleted="(args) => RemoveValue(kvp.Key)" TypeOfInput=@InputType Label="Value" Disabled=@Disabled />
+                                                    </MudGrid>
+                                                </td>
 
-                                        </tr>
+                                            </tr>
                                     }
                                 }
                                 <tr>
                                     <td>
                                         <MudGrid Spacing="0">
-                                            <SettingEditor @bind-Value=SettingProperty.NewValue TypeOfInput=KeyInputType Type=KeyType Label="@NewKey" ValueAdded="AddValue" />
+                                            <SettingEditor @bind-Value=SettingProperty.NewValue TypeOfInput=KeyInputType Type=KeyType Label="@NewKey" ValueAdded="AddValue" Disabled=@Disabled />
                                         </MudGrid>
                                     </td>
 
@@ -61,7 +61,7 @@
                                 @foreach (DictionaryEntry kvp in dictionary)
                                 {
                                     <MudTabPanel Text="@kvp.Key.ToString()" ID="@kvp.Key">
-                                        <SettingCard Title=@kvp.Key.ToString() HideTitle="true" Setting=@(new Occasus.Settings.Models.SettingBox(ValueType, null, kvp.Value)) OnSave=@(v => ChangeDictionaryItem(v, kvp.Key)) />
+                                        <SettingCard Title=@kvp.Key.ToString() HideTitle="true" Setting=@(new Occasus.Settings.Models.SettingBox(ValueType, null, kvp.Value)) OnSave=@(v => ChangeDictionaryItem(v, kvp.Key)) Disabled=@Disabled />
                                     </MudTabPanel>
                                 }
                             </ChildContent>
@@ -84,7 +84,7 @@
                             <MudGrid>
                                 <MudItem xs="12">
                                     <MudGrid>
-                                        <SettingEditor @bind-Value=SettingProperty.NewValue AutoFocus="true" TypeOfInput=KeyInputType Type=KeyType Label="@NewKey" ValueAdded="AddValue" />
+                                        <SettingEditor @bind-Value=SettingProperty.NewValue AutoFocus="true" TypeOfInput=KeyInputType Type=KeyType Label="@NewKey" Disabled=@Disabled ValueAdded="AddValue" />
                                     </MudGrid>
                                 </MudItem>
                                 <MudItem xs="12">
@@ -108,9 +108,9 @@
     {
         var i = 0;
         <MudCard Class="list" Elevation=5>
-            <MudCardHeader Class="pa-2 mud-theme-dark"><MudText Typo=Typo.h6>@Label</MudText></MudCardHeader>
-            <MudCardContent Class="pb-4">
-                @if (Value is IEnumerable list)
+            <MudCardHeader Class="@($"pa-2 {mudTheme}")"><MudText Typo=Typo.h6>@Label</MudText></MudCardHeader>
+                <MudCardContent Class="pb-4">
+                    @if (Value is IEnumerable list)
                 {
                     foreach (var item in list)
                     {
@@ -118,12 +118,12 @@
                         if (ValueType.IsSimple())
                         {
                             <MudGrid>
-                                <SettingEditor Type=ValueType Value=item TypeOfInput=@InputType ValueChanged=@((value) => ChangeListItem(value, index)) ValueDeleted="(args) => RemoveValue(index)" />
+                                <SettingEditor Type=ValueType Value=item TypeOfInput=@InputType ValueChanged=@((value) => ChangeListItem(value, index)) Disabled=@Disabled ValueDeleted="(args) => RemoveValue(index)" />
                             </MudGrid>
                         }
                         else
                         {
-                            <SettingCard Setting=@(new Occasus.Settings.Models.SettingBox(ValueType, null, item)) OnSave=@(value => ChangeListItem(value, index)) OnDelete="@(value => RemoveValue(index))" />
+                            <SettingCard Setting=@(new Occasus.Settings.Models.SettingBox(ValueType, null, item)) Disabled=@Disabled OnSave=@(value => ChangeListItem(value, index)) OnDelete="@(value => RemoveValue(index))" />
                         }
                         i++;
                     }
@@ -132,7 +132,7 @@
             <MudCardActions Class="justify-center grey lighten-3 red-text">
                 @if (ValueType.IsSimple())
                 {
-                    <SettingEditor @bind-Value=SettingProperty.NewValue Class="rounded-0 w-100" TypeOfInput=@InputType Type=ValueType Label=@($"New {Label.Singularize()}") ValueAdded="AddValue" />
+                    <SettingEditor @bind-Value=SettingProperty.NewValue Class="rounded-0 w-100" TypeOfInput=@InputType Type=ValueType Disabled=@Disabled Label=@($"New {GetName().Singularize()}") ValueAdded="AddValue" />
                 }
                 else
                 {
@@ -143,7 +143,7 @@
     }
     else
     {
-        <SettingCard Setting=@(new Occasus.Settings.Models.SettingBox(SettingProperty.Type, null, Value)) OnSave=@(x => Value = x) Title=@Label />
+        <SettingCard Setting=@(new Occasus.Settings.Models.SettingBox(SettingProperty.Type, null, Value)) OnSave=@(x => Value = x) Title=@Label Disabled=@Disabled />
 
     }
 }

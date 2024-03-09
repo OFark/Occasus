@@ -34,6 +34,9 @@ public partial class SettingWrapper
 
     private string? RequiredMessage;
 
+    [Parameter]
+    public bool Disabled { get; set; }
+
     private ValidationAttribute? validationAttributes;
 
     private Type? ValueType;
@@ -46,6 +49,8 @@ public partial class SettingWrapper
 
     [Parameter, EditorRequired]
     public SettingProperty SettingProperty { get; set; } = default!;
+
+    private string mudTheme => Disabled ? "mud-theme-error" : "mud-theme-dark";
 
     //This is not the POCO
     public object? Value
@@ -81,8 +86,10 @@ public partial class SettingWrapper
             Required = IsRequired(SettingProperty.PropertyInfo, out var message);
             RequiredMessage = message;
 
-            Label = GetLabel(SettingProperty.PropertyInfo);
-            NewKey = $"New {Label.Humanize().Singularize()}";
+            Disabled = Disabled || !IsSettable(SettingProperty.PropertyInfo, out _);
+
+            Label = GetLabel();
+            NewKey = $"New {GetName().Humanize().Singularize()}";
 
             ValueType = SettingProperty.ValueType;
             InputType = SettingProperty.InputAttribute.InputType;
@@ -112,8 +119,17 @@ public partial class SettingWrapper
         base.OnInitialized();
     }
 
-    private static string GetLabel(PropertyInfo propertyInfo)
-        => $"{(Attribute.GetCustomAttribute(propertyInfo, typeof(DisplayAttribute), false) as DisplayAttribute)?.Name ?? propertyInfo.Name.Humanize(LetterCasing.Title)}{(IsRestartRequired(propertyInfo) ? " !" : "")}";
+    private string GetName() 
+        => (Attribute.GetCustomAttribute(SettingProperty.PropertyInfo, typeof(DisplayAttribute), false) as DisplayAttribute)?.Name ?? SettingProperty.PropertyInfo.Name.Humanize(LetterCasing.Title);
+
+    private string GetLabel()
+    {
+        var name = GetName();
+        var restartRequired = IsRestartRequired(SettingProperty.PropertyInfo) ? " !" : "";
+        var disabled = IsSettable(SettingProperty.PropertyInfo, out var message) ? "" : $" - {message}";
+
+        return $"{name}{restartRequired}{disabled}";
+    }
 
     private static bool IsRestartRequired(PropertyInfo propertyInfo)
         => Attribute.GetCustomAttribute(propertyInfo, typeof(RestartRequiredAttribute), false) as RestartRequiredAttribute is not null;
@@ -130,6 +146,39 @@ public partial class SettingWrapper
 
         message = null;
         return false;
+    }
+
+    private static bool IsSettable(PropertyInfo propertyInfo, out string? message)
+    {
+        message = null;
+
+        var setter = propertyInfo.GetSetMethod(true);
+
+        if (setter is null)
+        {
+            message = "This property doesn't have a setter";
+            return false;
+        }
+
+        if(setter.IsAssembly)
+        {
+            message = "This property is internal";
+            return false;
+        }
+
+        if(setter.IsFamily)
+        {
+            message = "This property is protected";
+            return false;
+        }
+
+        if (setter.IsPrivate)
+        {
+            message = "This property is private";
+            return false;
+        }
+
+        return true;
     }
 
     private void AddNewValue()

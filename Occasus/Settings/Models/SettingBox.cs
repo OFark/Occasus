@@ -111,7 +111,7 @@ namespace Occasus.Settings.Models
             {
                 var restartRequired = Attribute.GetCustomAttribute(prop, typeof(RestartRequiredAttribute)) is not null;
 
-                if (restartRequired)
+                if (restartRequired || !prop.CanWrite)
                 {
                     continue;
                 }

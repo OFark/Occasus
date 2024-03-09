@@ -5,19 +5,19 @@
 <MudCard Class="@(HideTitle ? "titleless" : "child")" Elevation=0>
     @if (!HideTitle)
     {
-        <MudCardHeader Class="pa-2 mud-theme-secondary">
+        <MudCardHeader Class="@($"pa-2 {mudTheme}")">
             <CardHeaderContent>
                 <MudText Typo=Typo.h6>@CardTitle</MudText>
                 </CardHeaderContent>
                 <CardHeaderActions>
-                    <MudIconButton Icon="@Icons.Material.Rounded.Cancel" Class="mud-theme-secondary" OnClick=@Delete />
+                    <MudIconButton Icon="@Icons.Material.Rounded.Cancel" Class="@mudTheme" OnClick=@Delete />
                 </CardHeaderActions>
             </MudCardHeader>
     }
     <MudCardContent>
         @foreach (var settingProperty in editableProperties)
         {
-            <SettingWrapper POCO=Setting.Value SettingProperty=settingProperty OnSave=@Save />
+            <SettingWrapper POCO=Setting.Value SettingProperty=settingProperty OnSave=@Save Disabled=@Disabled />
         }
 
         @if (validateOptionsResult != null && validateOptionsResult.Failed)

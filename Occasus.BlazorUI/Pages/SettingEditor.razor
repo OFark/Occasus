@@ -3,40 +3,40 @@
 
 @if (nonNullableType == typeof(decimal))
 {
-    <MudNumericField @bind-Value=ValueDecimal Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label Required=@Required RequiredError=@RequiredMessage Immediate=true Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed" />
+    <MudNumericField @bind-Value=ValueDecimal Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label Disabled=@Disabled Required=@Required RequiredError=@RequiredMessage Immediate=true Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed" />
 }
 else if (nonNullableType == typeof(double))
 {
-    <MudNumericField @bind-Value=ValueDouble Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label Required=@Required RequiredError=@RequiredMessage Immediate=true Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed" />
+    <MudNumericField @bind-Value=ValueDouble Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label Disabled=@Disabled Required=@Required RequiredError=@RequiredMessage Immediate=true Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed" />
 }
 else if (nonNullableType == typeof(float))
 {
-    <MudNumericField @bind-Value=ValueFloat Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label Required=@Required RequiredError=@RequiredMessage Immediate=true Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed" />
+    <MudNumericField @bind-Value=ValueFloat Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label Disabled=@Disabled Required=@Required RequiredError=@RequiredMessage Immediate=true Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed" />
 }
 else if (nonNullableType == typeof(short))
 {
-    <MudNumericField @bind-Value=ValueInt16 Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label Required=@Required RequiredError=@RequiredMessage Immediate=true Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed" />
+    <MudNumericField @bind-Value=ValueInt16 Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label Disabled=@Disabled Required=@Required RequiredError=@RequiredMessage Immediate=true Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed" />
 }
 else if (nonNullableType == typeof(int))
 {
-    <MudNumericField @bind-Value=ValueInt Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label Required=@Required RequiredError=@RequiredMessage Immediate=true Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed" />
+    <MudNumericField @bind-Value=ValueInt Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label Disabled=@Disabled Required=@Required RequiredError=@RequiredMessage Immediate=true Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed" />
 }
 else if (nonNullableType == typeof(long))
 {
-    <MudNumericField @bind-Value=ValueInt64 Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label Required=@Required RequiredError=@RequiredMessage Immediate=true Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed" />
+    <MudNumericField @bind-Value=ValueInt64 Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label Disabled=@Disabled Required=@Required RequiredError=@RequiredMessage Immediate=true Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed" />
 }
 else if (nonNullableType == typeof(DateTime))
 {
     switch (TypeOfInput)
     {
         case InputType.Date:
-            <MudTextField @bind-Value=ValueDate Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label InputType=@TypeOfInput Required=@Required RequiredError=@RequiredMessage Immediate=true TextUpdateSuppression=false Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed" />
+            <MudTextField @bind-Value=ValueDate Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label InputType=@TypeOfInput Disabled=@Disabled Required=@Required RequiredError=@RequiredMessage Immediate=true TextUpdateSuppression=false Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed" />
             break;
         case InputType.DateTimeLocal:
-            <MudTextField @bind-Value=ValueDateTime Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label InputType=@TypeOfInput Required=@Required RequiredError=@RequiredMessage Immediate=true TextUpdateSuppression=false Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed" />
+            <MudTextField @bind-Value=ValueDateTime Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label InputType=@TypeOfInput Disabled=@Disabled Required=@Required RequiredError=@RequiredMessage Immediate=true TextUpdateSuppression=false Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed" />
             break;
         case InputType.Time:
-            <MudTextField @bind-Value=ValueTime Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label InputType=@TypeOfInput Required=@Required RequiredError=@RequiredMessage Immediate=true TextUpdateSuppression=false Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed" />
+            <MudTextField @bind-Value=ValueTime Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label InputType=@TypeOfInput Disabled=@Disabled Required=@Required RequiredError=@RequiredMessage Immediate=true TextUpdateSuppression=false Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed" />
             break;
 
     }
@@ -44,21 +44,21 @@ else if (nonNullableType == typeof(DateTime))
 }
 else if (nonNullableType == typeof(TimeSpan))
 {
-    <MudTextField @bind-Value=ValueTimeSpan Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label InputType=InputType.Time Required=@Required RequiredError=@RequiredMessage Immediate=true TextUpdateSuppression=false Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed" />
+    <MudTextField @bind-Value=ValueTimeSpan Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label InputType=InputType.Time Disabled=@Disabled Required=@Required RequiredError=@RequiredMessage Immediate=true TextUpdateSuppression=false Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed" />
 }
 else if (nonNullableType == typeof(bool))
 {
     <div>
-        <MudCheckBox @bind-Checked=ValueBool TriState=Type.IsNullable() Validation=Validation Class=@Class Variant=@inputVariant Label=@Label Color=Color.Success T=bool? Required=@Required RequiredError=@RequiredMessage></MudCheckBox>
+        <MudCheckBox @bind-Checked=ValueBool TriState=Type.IsNullable() Validation=Validation Class=@Class Variant=@inputVariant Label=@Label Color=Color.Success T=bool? Disabled=@Disabled Required=@Required RequiredError=@RequiredMessage></MudCheckBox>
     </div>
 }
 else if(nonNullableType == typeof(Guid))
 {
-    <MudTextField @bind-Value=ValueGuid Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label InputType=@InputType Required=@Required RequiredError=@RequiredMessage Immediate=false TextUpdateSuppression=false Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed"></MudTextField>
+    <MudTextField @bind-Value=ValueGuid Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label InputType=@InputType Disabled=@Disabled Required=@Required RequiredError=@RequiredMessage Immediate=false TextUpdateSuppression=false Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick OnKeyUp="KeyPressed"></MudTextField>
 }
 else if (nonNullableType.IsEnum)
 {
-    <MudSelect @bind-Value=ValueEnum Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label Required=@Required RequiredError=@RequiredMessage Immediate=false TextUpdateSuppression=false Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick>
+    <MudSelect @bind-Value=ValueEnum Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label Disabled=@Disabled Required=@Required RequiredError=@RequiredMessage Immediate=false TextUpdateSuppression=false Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick>
         @if(Type.IsNullable())
         {
             <MudSelectItem T="int?" Value="@(null)">Select an option:</MudSelectItem>
@@ -71,7 +71,7 @@ else if (nonNullableType.IsEnum)
                }
 else
 {
-    <MudTextField @bind-Value=ValueString Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label InputType=@InputType Required=@Required RequiredError=@RequiredMessage Immediate=true TextUpdateSuppression=false Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick autocomplete="new-password" OnKeyUp="KeyPressed"></MudTextField>
+    <MudTextField @bind-Value=ValueString Validation=Validation Class=@Class AutoFocus=@AutoFocus Variant=@inputVariant Label=@Label InputType=@InputType Disabled=@Disabled Required=@Required RequiredError=@RequiredMessage Immediate=true TextUpdateSuppression=false Adornment=Adornment.End AdornmentIcon=@AdornmentIcon OnAdornmentClick=AdornmentClick autocomplete="new-password" OnKeyUp="KeyPressed"></MudTextField>
 }
 @if (ValueAdded.HasDelegate)
 {
