@@ -35,7 +35,6 @@ builder.AddOccasusUI()
     .WithOptions<TestLists>()
     .WithFeatureFlagOptions<TestSimple>(builder.Configuration)
     .WithOptions<TestDictionaries>(out var optionsBuilder);
-    
 
 optionsBuilder.Validate(x => x.TestDictionaryStringStrings != null && x.TestDictionaryStringStrings.Count != 0, "Test DictionaryStrings must have some value");
 

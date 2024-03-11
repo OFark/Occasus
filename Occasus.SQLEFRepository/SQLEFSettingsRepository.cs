@@ -181,12 +181,13 @@ public class SQLEFSettingsRepository : SettingsRepositoryBase, IOptionsStorageRe
         var key = ss.Name;
         var itemValue = ss.Value;
 
-        var settings = await ReadSettingsFromDBAsync(cancellation);
-
         if (itemValue is null)
         {
             return;
         }
+
+        //var settings = await ReadSettingsFromDBAsync(cancellation);
+
 
         if (SQLSettings.EncryptSettings && SQLSettings.EncryptionKey is not null)
         {

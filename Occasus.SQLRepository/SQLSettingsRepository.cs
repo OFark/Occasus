@@ -93,7 +93,9 @@ public class SQLSettingsRepository : SettingsRepositoryBase, IOptionsStorageRepo
 
         await DeleteSettings(className, cancellation).ConfigureAwait(false);
 
-        var persisting = settingItems.Select(ss => PersistValue(ss, cancellation)).ToArray();
+        var settings = await LoadSettingsAsync(cancellation);
+
+        var persisting = settingItems.Select(ss => PersistValue(ss, settings, cancellation)).ToArray();
 
         Task.WaitAll(persisting, cancellation);
 
@@ -155,15 +157,13 @@ public class SQLSettingsRepository : SettingsRepositoryBase, IOptionsStorageRepo
         return dic;
     }
 
-    private async Task PersistValue(SettingStorage ss, CancellationToken cancellation = default)
+    private async Task PersistValue(SettingStorage ss, IDictionary<string, string> settings, CancellationToken cancellation = default)
     {
         Logger?.LogTrace("Persisting Settings to SQL");
         using var connection = new SqlConnection(SQLSettings.ConnectionString);
         await connection.OpenAsync(cancellation).ConfigureAwait(false);
         var key = ss.Name;
         var itemValue = ss.Value;
-
-        var settings = await LoadSettingsAsync(cancellation);
 
         if (itemValue is null)
         {
