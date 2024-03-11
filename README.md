@@ -1,6 +1,10 @@
 # Occasus
 *.net core IOptions manager and UI*
 
+## *Breaking changes*
+- Going from 7.0.x to 8.0.x requires .net 8
+- Going to 8.1.x will change the encryption method, settings will be scrambled. Copy the settings out to clipboard/file and delete the encrypted settings from storage before upgrading.
+
 ## What is it?
 
 At it's core Occasus is an easy way to move .Net Options from the appSettings.json file to another storage repository.
@@ -9,7 +13,7 @@ It also has an optional UI to allow editing of those values during runtime.
 
 ## What is supported?
 
-Currently .Net core 6; Console Applications, Blazor Apps and API, and Azure Functions. 
+Currently .Net core 8; Console Applications, Blazor Apps and API, and Azure Functions. 
 
 If you have a dependancy injected IConfigurationBuilder and IServiceCollection you should be good to go.
 
