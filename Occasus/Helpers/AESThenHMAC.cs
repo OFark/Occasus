@@ -5,6 +5,7 @@
  * http://creativecommons.org/publicdomain/mark/1.0/ 
  */
 
+using MudBlazor;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -13,6 +14,7 @@ namespace Occasus.Helpers;
 public class AESThenHMAC
 {
     private static readonly RandomNumberGenerator Random = RandomNumberGenerator.Create();
+    private readonly static byte[] Header = Encoding.UTF8.GetBytes("ENCRYPTED_WITH_AES");
 
     //Preconfigured Encryption Parameters
     public static readonly int BlockBitSize = 128;
@@ -202,6 +204,7 @@ public class AESThenHMAC
             var tag = hmac.ComputeHash(encryptedStream.ToArray());
             //Postpend tag
             binaryWriter.Write(tag);
+            binaryWriter.Flush();
         }
         return encryptedStream.ToArray();
 
@@ -279,7 +282,7 @@ public class AESThenHMAC
 
     /// <summary>
     /// Simple Encryption (AES) then Authentication (HMAC) of a UTF8 message
-    /// using Keys derived from a Password (PBKDF2)
+    /// using Keys derived from a Password (SHA256)
     /// </summary>
     /// <param name="secretMessage">The secret message.</param>
     /// <param name="password">The password.</param>
@@ -296,52 +299,61 @@ public class AESThenHMAC
     {
         nonSecretPayload ??= [];
 
-        //User Error Checks
+        // User Error Checks
         if (string.IsNullOrWhiteSpace(password) || password.Length < MinPasswordLength)
             throw new ArgumentException(string.Format("Must have a password of at least {0} characters!", MinPasswordLength), nameof(password));
 
         if (secretMessage == null || secretMessage.Length == 0)
             throw new ArgumentException("Secret Message Required!", nameof(secretMessage));
 
-        var payload = new byte[((SaltBitSize / 8) * 2) + nonSecretPayload.Length];
+        // Generate Salt
+        byte[] cryptSalt = GenerateSalt();
+        byte[] authSalt = GenerateSalt();
 
-        Array.Copy(nonSecretPayload, payload, nonSecretPayload.Length);
-        int payloadIndex = nonSecretPayload.Length;
+        // Derive Keys using SHA256
+        byte[] cryptKey = DeriveKey(password, cryptSalt);
+        byte[] authKey = DeriveKey(password, authSalt);
 
-        byte[] cryptKey;
-        byte[] authKey;
-        //Use Random Salt to prevent pre-generated weak password attacks.
-        using (var generator = new Rfc2898DeriveBytes(password, SaltBitSize / 8, Iterations))
-        {
-            var salt = generator.Salt;
+        // Create Non-Secret Payload
+        byte[] payload = CreatePayload(nonSecretPayload, cryptSalt, authSalt);
 
-            //Generate Keys
-            cryptKey = generator.GetBytes(KeyBitSize / 8);
-
-            //Create Non Secret Payload
-            Array.Copy(salt, 0, payload, payloadIndex, salt.Length);
-            payloadIndex += salt.Length;
-        }
-
-        //Deriving separate key, might be less efficient than using HKDF, 
-        //but now compatible with RNEncryptor which had a very similar wireformat and requires less code than HKDF.
-        using (var generator = new Rfc2898DeriveBytes(password, SaltBitSize / 8, Iterations))
-        {
-            var salt = generator.Salt;
-
-            //Generate Keys
-            authKey = generator.GetBytes(KeyBitSize / 8);
-
-            //Create Rest of Non Secret Payload
-            Array.Copy(salt, 0, payload, payloadIndex, salt.Length);
-        }
-
+        // Encrypt the message
         return SimpleEncrypt(secretMessage, cryptKey, authKey, payload);
+    }
+
+    private static byte[] GenerateSalt()
+    {
+        // Generate a random salt
+        byte[] salt = new byte[SaltBitSize / 8];
+        Random.GetBytes(salt);
+        return salt;
+    }
+
+
+    private static byte[] DeriveKey(string password, byte[] salt) =>
+        // Derive key using SHA256
+        SHA256.HashData(Encoding.UTF8.GetBytes(password + Convert.ToBase64String(salt)));
+
+    private static byte[] CreatePayload(byte[] nonSecretPayload, byte[] cryptSalt, byte[] authSalt)
+    {
+        return Header.ConcatArray(nonSecretPayload).ConcatArray(cryptSalt).ConcatArray(authSalt);
+    }
+
+    private static (byte[] Header, byte[] NonSecretPayload, byte[] CryptSalt, byte[] AuthSalt) ExtractPayload(byte[] encryptedMessage, int nonSecretPayloadLength = 0)
+    {
+        var arrayReader = new ArrayReader<byte>(encryptedMessage);
+
+        var header = arrayReader.Read(Header.Length);
+        var nonSecretMesasge = arrayReader.Read(nonSecretPayloadLength);
+        var cryptSalt = arrayReader.Read(SaltBitSize / 8);
+        var authSalt = arrayReader.Read(SaltBitSize / 8);
+
+        return (header.ToArray(), nonSecretMesasge.ToArray(), cryptSalt.ToArray(), authSalt.ToArray());
     }
 
     /// <summary>
     /// Simple Authentication (HMAC) and then Descryption (AES) of a UTF8 Message
-    /// using keys derived from a password (PBKDF2). 
+    /// using keys derived from a password (SHA256). 
     /// </summary>
     /// <param name="encryptedMessage">The encrypted message.</param>
     /// <param name="password">The password.</param>
@@ -355,39 +367,33 @@ public class AESThenHMAC
     /// </remarks>
     public static byte[]? SimpleDecryptWithPassword(byte[] encryptedMessage, string password, int nonSecretPayloadLength = 0)
     {
-        //User Error Checks
+        // User Error Checks
         if (string.IsNullOrWhiteSpace(password) || password.Length < MinPasswordLength)
             throw new ArgumentException(string.Format("Must have a password of at least {0} characters!", MinPasswordLength), nameof(password));
 
         if (encryptedMessage == null || encryptedMessage.Length == 0)
             throw new ArgumentException("Encrypted Message Required!", nameof(encryptedMessage));
 
-        var cryptSalt = new byte[SaltBitSize / 8];
-        var authSalt = new byte[SaltBitSize / 8];
 
-        if(encryptedMessage.Length < cryptSalt.Length + authSalt.Length) 
+        if (encryptedMessage.Length < Header.Length)
         {
             return null;
         }
 
-        //Grab Salt from Non-Secret Payload
-        Array.Copy(encryptedMessage, nonSecretPayloadLength, cryptSalt, 0, cryptSalt.Length);
-        Array.Copy(encryptedMessage, nonSecretPayloadLength + cryptSalt.Length, authSalt, 0, authSalt.Length);
+        var (header, _, cryptSalt, authSalt) = ExtractPayload(encryptedMessage, nonSecretPayloadLength);
 
-        byte[] cryptKey;
-        byte[] authKey;
-
-        //Generate crypt key
-        using (var generator = new Rfc2898DeriveBytes(password, cryptSalt, Iterations))
+        
+        if (!header.SequenceEqual(Header))
         {
-            cryptKey = generator.GetBytes(KeyBitSize / 8);
-        }
-        //Generate auth key
-        using (var generator = new Rfc2898DeriveBytes(password, authSalt, Iterations))
-        {
-            authKey = generator.GetBytes(KeyBitSize / 8);
+            return null;
         }
 
-        return SimpleDecrypt(encryptedMessage, cryptKey, authKey, cryptSalt.Length + authSalt.Length + nonSecretPayloadLength);
+        // Extract salts from the encrypted message
+        // Derive keys using SHA256
+        byte[] cryptKey = DeriveKey(password, cryptSalt);
+        byte[] authKey = DeriveKey(password, authSalt);
+
+        // Decrypt the message
+        return SimpleDecrypt(encryptedMessage, cryptKey, authKey, Header.Length + cryptSalt.Length + authSalt.Length + nonSecretPayloadLength);
     }
 }

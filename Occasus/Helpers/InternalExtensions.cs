@@ -33,9 +33,13 @@ internal static class InternalExtensions
                                                                       || p.PropertyType.GetConstructor(Type.EmptyTypes) is not null));
 
 
-
-
-
+    internal static byte[] ConcatArray(this byte[] array1, byte[] array2)
+    {
+        byte[] rv = new byte[array1.Length + array2.Length];
+        Buffer.BlockCopy(array1, 0, rv, 0, array1.Length);
+        Buffer.BlockCopy(array2, 0, rv, array1.Length, array2.Length);
+        return rv;
+    }
 
 }
 
