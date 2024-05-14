@@ -40,6 +40,7 @@ public sealed class SettingBox
     public string HumanTitle { get; }
     public bool IsDefault => Value == Activator.CreateInstance(Type);
     public bool RequiresRestart { get; private set; }
+    public bool IsValid { get; internal set; } = true;
     public Type Type { get; set; }
 
     [NotNull]

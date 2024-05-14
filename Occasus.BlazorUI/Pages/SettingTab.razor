@@ -2,7 +2,7 @@
 @using Occasus.Helpers
 @using System.Collections
 
-<MudTabPanel Text="@CardTitle" Icon="@(Setting.RequiresRestart ? Icons.Material.Rounded.RestartAlt : null)">
+<MudTabPanel Text="@CardTitle" Style="@(Setting.IsValid ? null : "background-color: red")" Icon="@(Setting.RequiresRestart ? Icons.Material.Rounded.RestartAlt : null)">
     <EditForm @bind-IsValid=formIsValid @ref=form id=@FormId Model=@Setting.Value OnValidSubmit=OnValidSubmit OnInvalidSubmit=OnInvalidSubmit>
         <DataAnnotationsValidator />
 
