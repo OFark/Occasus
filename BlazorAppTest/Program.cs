@@ -1,10 +1,12 @@
 using BlazorAppTest.Data;
+using Microsoft.Extensions.Options;
 using Occasus.BlazorUI;
 using Occasus.JSONRepository;
 using Occasus.Options;
 using Occasus.SQLEFRepository;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using TestClassLibrary;
 using TestClassLibrary.SupportModels;
 using TestClassLibrary.TestModels;
 
@@ -49,6 +51,7 @@ builder.UseOptionsFromJsonFile("settings/settings.json")
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
+builder.Services.AddTransient<IValidateOptions<TestSimple>, TestSimpleValidator>();
 
 var app = builder.Build();
 

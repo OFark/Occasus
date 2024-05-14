@@ -41,6 +41,7 @@ namespace Occasus.Settings
             foreach (var settingBox in SettingsStore.SettingsWithRepositories)
             {
                 settingBox.LoadValueFromConfiguration(configuration);
+                settingBox.IsValid = !Validate(settingBox).Failed;
             }
 
             return SettingsStore.Settings;
@@ -60,6 +61,7 @@ namespace Occasus.Settings
             if (!valid.Failed)
             {
                 await setting.PersistSettingToStorageAsync(cancellation).ConfigureAwait(false);
+                setting.IsValid = true;
             }
 
             return valid;
