@@ -35,7 +35,7 @@ namespace Occasus.BlazorUI.Pages
         {
             await JS.InvokeVoidAsync("PreventEnterKey", FormId).ConfigureAwait(true);
 
-            if (doValidate)
+            if (doValidate || firstRender)
             {
                 await Validate().ConfigureAwait(false);
             }

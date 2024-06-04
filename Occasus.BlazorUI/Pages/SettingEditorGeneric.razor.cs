@@ -107,26 +107,26 @@ public partial class SettingEditorGeneric<T>
         builder.AddAttribute(7, nameof(MudBaseInput<T>.Disabled), Disabled);
         builder.AddAttribute(8, nameof(MudFormComponent<T, string>.Required), Required);
         builder.AddAttribute(9, nameof(MudFormComponent<T, string>.RequiredError), RequiredMessage);
-        builder.AddAttribute(9, nameof(MudFormComponent<T, string>.For), GetPropertyExpression());
+        builder.AddAttribute(10, nameof(MudFormComponent<T, string>.For), GetPropertyExpression());
 
         if (componentType != typeof(MudCheckBox<T>))
         {
-            builder.AddAttribute(10, nameof(MudBaseInput<T>.AutoFocus), AutoFocus);
-            builder.AddAttribute(11, nameof(MudBaseInput<T>.Immediate), nonNullableType != typeof(Guid) && !nonNullableType.IsEnum);
-            builder.AddAttribute(12, nameof(MudBaseInput<T>.Adornment), Adornment.End);
-            builder.AddAttribute(13, nameof(MudBaseInput<T>.AdornmentIcon), AdornmentIcon);
-            builder.AddAttribute(14, nameof(MudBaseInput<T>.OnAdornmentClick), EventCallback.Factory.Create<MouseEventArgs>(this, AdornmentClick));
-            builder.AddAttribute(15, nameof(MudBaseInput<T>.OnKeyUp), EventCallback.Factory.Create(this, async (KeyboardEventArgs args) => { await KeyPressed(args); }));
+            builder.AddAttribute(11, nameof(MudBaseInput<T>.AutoFocus), AutoFocus);
+            builder.AddAttribute(12, nameof(MudBaseInput<T>.Immediate), nonNullableType != typeof(Guid) && !nonNullableType.IsEnum);
+            builder.AddAttribute(13, nameof(MudBaseInput<T>.Adornment), Adornment.End);
+            builder.AddAttribute(14, nameof(MudBaseInput<T>.AdornmentIcon), AdornmentIcon);
+            builder.AddAttribute(15, nameof(MudBaseInput<T>.OnAdornmentClick), EventCallback.Factory.Create<MouseEventArgs>(this, AdornmentClick));
+            builder.AddAttribute(16, nameof(MudBaseInput<T>.OnKeyUp), EventCallback.Factory.Create(this, async (KeyboardEventArgs args) => { await KeyPressed(args); }));
         }
 
         if (nonNullableType == typeof(DateTime))
         {
-            builder.AddAttribute(16, nameof(MudBaseInput<T>.TextUpdateSuppression), false);
+            builder.AddAttribute(17, nameof(MudBaseInput<T>.TextUpdateSuppression), false);
         }
 
         if (componentType == typeof(MudTextField<T>))
         {
-            builder.AddAttribute(17, nameof(MudTextField<T>.InputType), InputType);
+            builder.AddAttribute(18, nameof(MudTextField<T>.InputType), InputType);
         }
 
         if (nonNullableType == typeof(string))
