@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 using MudBlazor;
@@ -11,54 +12,49 @@ namespace Occasus.BlazorUI.Pages
 {
     public partial class SettingTab
     {
+        public EditContext editContext = default!;
+        private bool doValidate;
         private IEnumerable<SettingProperty> editableProperties = default!;
-        private EditForm? form = default!;
-        private bool formIsValid;
-        ValidateOptionsResult? validateOptionsResult;
         public string CardTitle => Setting.HumanTitle;
         [Inject] public IJSRuntime JS { get; set; } = default!;
-        [Inject] public ISnackbar Snackbar { get; set; } = default!;
-
         [Parameter] public EventCallback<object> OnSave { get; set; }
+        [Parameter] public EventCallback<bool> OnValidate { get; set; }
 
         [Parameter, EditorRequired]
         public SettingBox Setting { get; set; } = default!;
 
         [Inject] public ISettingService SettingService { get; set; } = default!;
+        [Inject] public ISnackbar Snackbar { get; set; } = default!;
 
         [Parameter]
         public CancellationToken Token { get; set; } = new CancellationTokenSource().Token;
+
         private string? FormId => $"form_{Setting.Type.Name}";
+
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await JS.InvokeVoidAsync("PreventEnterKey", FormId).ConfigureAwait(false);
+            await JS.InvokeVoidAsync("PreventEnterKey", FormId).ConfigureAwait(true);
+
+            if (doValidate)
+            {
+                await Validate().ConfigureAwait(false);
+            }
         }
 
         protected override async Task OnInitializedAsync()
         {
-
             editableProperties = Setting.EditableProperties;
 
+            editContext = new EditContext(Setting.Value);
+            editContext.OnValidationStateChanged += (o, v) =>
+            {
+                if (Setting.IsValid && editContext.GetValidationMessages().Any())
+                {
+                    Setting.ValidationResult = ValidateOptionsResult.Fail(editContext.GetValidationMessages());
+                }
+            };
+
             await base.OnInitializedAsync();
-        }
-        private async Task OnInvalidSubmit(EditContext context)
-        {
-            await InvokeAsync(StateHasChanged);
-        }
-
-        private async Task OnValidSubmit(EditContext context)
-        {
-            var validation = await SettingService.PersistSettingToStorage(Setting, Token);
-
-            validateOptionsResult = validation;
-
-            await OnSave.InvokeAsync();
-            await InvokeAsync(StateHasChanged);
-        }
-        private async Task Save(object? x)
-        {
-            await OnSave.InvokeAsync(x);
-            await InvokeAsync(StateHasChanged);
         }
 
         private async Task Clear()
@@ -79,13 +75,31 @@ namespace Occasus.BlazorUI.Pages
             }
         }
 
+        private async Task OnInvalidSubmit(EditContext context)
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+
+        private Task OnTabClick(MouseEventArgs args)
+        {
+            doValidate = true;
+            return Task.CompletedTask;
+        }
+
+        private async Task OnValidSubmit(EditContext context)
+        {
+            await SettingService.PersistSettingToStorage(Setting, Token);
+
+            await OnSave.InvokeAsync();
+            await InvokeAsync(StateHasChanged);
+        }
+
         private async Task PasteFromClipboard()
         {
             var jsonRequest = await JS.InvokeAsync<string>("clipboardCopy.pasteText").ConfigureAwait(false);
 
             if (jsonRequest is string json)
             {
-
                 try
                 {
                     var val = JsonSerializer.Deserialize(json, Setting.Type);
@@ -105,5 +119,20 @@ namespace Occasus.BlazorUI.Pages
             }
         }
 
+        private async Task Save(object? x)
+        {
+            await OnSave.InvokeAsync(x);
+            await InvokeAsync(StateHasChanged);
+        }
+
+        private async Task Validate()
+        {
+            editContext.Validate();
+            editContext.NotifyValidationStateChanged();
+
+            StateHasChanged();
+            await OnValidate.InvokeAsync(Setting.IsValid);
+            doValidate = false;
+        }
     }
 }

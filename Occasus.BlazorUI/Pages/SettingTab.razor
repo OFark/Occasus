@@ -2,25 +2,27 @@
 @using Occasus.Helpers
 @using System.Collections
 
-<MudTabPanel Text="@CardTitle" Style="@(Setting.IsValid ? null : "background-color: red")" Icon="@(Setting.RequiresRestart ? Icons.Material.Rounded.RestartAlt : null)">
-    <EditForm @bind-IsValid=formIsValid @ref=form id=@FormId Model=@Setting.Value OnValidSubmit=OnValidSubmit OnInvalidSubmit=OnInvalidSubmit>
+<MudTabPanel Text="@CardTitle" Style="@(Setting.IsValid ? null : "color: red")" Icon="@(Setting.RequiresRestart ? Icons.Material.Rounded.RestartAlt : null)" OnClick="OnTabClick">
+    <EditForm id=@FormId OnValidSubmit=OnValidSubmit OnInvalidSubmit=OnInvalidSubmit EditContext=@editContext>
         <DataAnnotationsValidator />
+
+        @if (!Setting.IsValid || !context.Validate())
+        {
+            <MudPaper Class="pa-2 mt-3 d-block">
+                <ul class="validation-errors">
+                    @foreach (var message in Setting.ValidationResult.Failures ?? [])
+                    {
+                        <li class="validation-message">@message</li>
+                    }
+                </ul>
+            </MudPaper>
+        }
 
         @foreach (var settingProperty in editableProperties)
         {
             <SettingWrapper POCO=Setting.Value SettingProperty=settingProperty OnSave=@Save />
         }
 
-        @if (validateOptionsResult != null && validateOptionsResult.Failed)
-        {
-            <MudPaper Class="pa-2 mt-3 d-block">
-                @foreach (var message in validateOptionsResult.Failures)
-                {
-                    <MudText Color=Color.Error>@message</MudText>
-                }
-            </MudPaper>
-        }
-        <ValidationSummary />
         <MudToolBar DisableGutters="true" Class="gap-3">
             <MudButton ButtonType=ButtonType.Submit FullWidth=true Variant=Variant.Outlined Disabled=!Setting.HasChanged StartIcon=@Icons.Material.Rounded.Save IconColor=@(Setting.HasChanged ? Color.Success : Color.Inherit)>Save</MudButton>
             <MudButton OnClick="CopyToClipboard" FullWidth=true Variant=Variant.Outlined Disabled=Setting.IsDefault StartIcon=@Icons.Material.Rounded.ContentCopy IconColor=Color.Secondary>Copy</MudButton>

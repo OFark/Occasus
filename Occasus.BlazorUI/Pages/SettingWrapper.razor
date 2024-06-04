@@ -7,14 +7,14 @@
     var type = SettingProperty.NotNullType;
     @if (type.IsSimple())
     {
-        <SettingEditor @bind-Value=Value Type=@SettingProperty.Type TypeOfInput=@InputType Required=@Required RequiredMessage=@RequiredMessage Disabled=@Disabled Label=@Label Validation=validationAttributes />
+        @GetBoundEditor()
     }
     else if (SettingProperty.NotNullType.IsDictionary())
     {
         <MudCard Class="list" Elevation=5>
             <MudCardHeader Class="@($"pa-2 {MudTheme}")"><MudText Typo=Typo.h6>@Label</MudText></MudCardHeader>
-                <MudCardContent Class="pb-4">
-                    @if (KeyType == typeof(string))
+            <MudCardContent Class="pb-4">
+                @if (KeyType == typeof(string))
                 {
                     if (ValueType.IsSimple())
                     {
@@ -27,21 +27,21 @@
                                         <tr>
                                             <td>
                                                 <MudText Class="pl-3">@kvp.Key</MudText>
-                                                </td>
+                                            </td>
 
-                                                <td>
-                                                    <MudGrid Spacing="0">
-                                                        <SettingEditor Type=ValueType Value=kvp.Value ValueChanged=@((v) => ChangeDictionaryItem(v, kvp.Key)) ValueDeleted="(args) => RemoveValue(kvp.Key)" TypeOfInput=@InputType Label="Value" Disabled=@Disabled />
-                                                    </MudGrid>
-                                                </td>
+                                            <td>
+                                                <MudGrid Spacing="0">
+                                                    @GetDictionaryEditor(kvp)
+                                                </MudGrid>
+                                            </td>
 
-                                            </tr>
+                                        </tr>
                                     }
                                 }
                                 <tr>
                                     <td>
                                         <MudGrid Spacing="0">
-                                            <SettingEditor @bind-Value=SettingProperty.NewValue TypeOfInput=KeyInputType Type=KeyType Label="@NewKey" ValueAdded="AddValue" Disabled=@Disabled />
+                                            @GetNewEditor(KeyType, KeyInputType, NewKey)
                                         </MudGrid>
                                     </td>
 
@@ -84,7 +84,7 @@
                             <MudGrid>
                                 <MudItem xs="12">
                                     <MudGrid>
-                                        <SettingEditor @bind-Value=SettingProperty.NewValue AutoFocus="true" TypeOfInput=KeyInputType Type=KeyType Label="@NewKey" Disabled=@Disabled ValueAdded="AddValue" />
+                                        @GetNewEditor(KeyType, KeyInputType, NewKey)
                                     </MudGrid>
                                 </MudItem>
                                 <MudItem xs="12">
@@ -109,8 +109,8 @@
         var i = 0;
         <MudCard Class="list" Elevation=5>
             <MudCardHeader Class="@($"pa-2 {MudTheme}")"><MudText Typo=Typo.h6>@Label</MudText></MudCardHeader>
-                <MudCardContent Class="pb-4">
-                    @if (Value is IEnumerable list)
+            <MudCardContent Class="pb-4">
+                @if (Value is IEnumerable list)
                 {
                     foreach (var item in list)
                     {
@@ -118,7 +118,8 @@
                         if (ValueType.IsSimple())
                         {
                             <MudGrid>
-                                <SettingEditor Type=ValueType Value=item TypeOfInput=@InputType ValueChanged=@((value) => ChangeListItem(value, index)) Disabled=@Disabled ValueDeleted="(args) => RemoveValue(index)" />
+                                @* <SettingEditor Type=ValueType Value=item TypeOfInput=@InputType ValueChanged=@((value) => ChangeListItem(value, index)) Disabled=@Disabled ValueDeleted="(args) => RemoveValue(index)" /> *@
+                                @GetIEnumerableEditor(item, index)
                             </MudGrid>
                         }
                         else
@@ -132,7 +133,8 @@
             <MudCardActions Class="justify-center grey lighten-3 red-text">
                 @if (ValueType.IsSimple())
                 {
-                    <SettingEditor @bind-Value=SettingProperty.NewValue Class="rounded-0 w-100" TypeOfInput=@InputType Type=ValueType Disabled=@Disabled Label=@($"New {GetName().Singularize()}") ValueAdded="AddValue" />
+                    @* <SettingEditor @bind-Value=SettingProperty.NewValue Class="rounded-0 w-100" TypeOfInput=@InputType Type=ValueType Disabled=@Disabled Label=@($"New {GetName().Singularize()}") ValueAdded="AddValue" /> *@
+                    @GetNewEditor(ValueType, InputType, $"New {GetName().Singularize()}")
                 }
                 else
                 {

@@ -4,12 +4,15 @@ using MudBlazor;
 using Occasus.Attributes;
 using Occasus.Helpers;
 using Occasus.Settings;
+using Occasus.Settings.Interfaces;
 using Occasus.Settings.Models;
+using System;
 using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Reflection;
-using Occasus.Settings.Interfaces;
+using static MudBlazor.CategoryTypes;
+using static MudBlazor.Colors;
 
 namespace Occasus.BlazorUI.Pages;
 
@@ -39,7 +42,7 @@ public partial class SettingWrapper
 
     private ValidationAttribute? validationAttributes;
 
-    private Type? ValueType;
+    private Type ValueType;
 
     [Parameter]
     public EventCallback<object> OnSave { get; set; }
@@ -102,11 +105,11 @@ public partial class SettingWrapper
                 var length = SettingProperty.PropertyInfo.GetIndexParameters().Length;
                 _value = SettingProperty.PropertyInfo.GetValue(POCO, Enumerable.Range(0, length).Cast<object>().ToArray());
             }
-            else if(SettingProperty.NotNullType.IsEnum)
+            else if (SettingProperty.NotNullType.IsEnum)
             {
-                _value = POCO is null ? null : 
+                _value = POCO is null ? null :
                     Enum.TryParse(SettingProperty.NotNullType, SettingProperty.PropertyInfo.GetValue(POCO)?.ToString(), out var eVal) && eVal is not null ?
-                        (int)eVal:
+                        (int)eVal :
                         null;
             }
             else
@@ -119,7 +122,7 @@ public partial class SettingWrapper
         base.OnInitialized();
     }
 
-    private string GetName() 
+    private string GetName()
         => (Attribute.GetCustomAttribute(SettingProperty.PropertyInfo, typeof(DisplayAttribute), false) as DisplayAttribute)?.Name ?? SettingProperty.PropertyInfo.Name.Humanize(LetterCasing.Title);
 
     private string GetLabel()
@@ -130,6 +133,71 @@ public partial class SettingWrapper
 
         return $"{name}{restartRequired}{disabled}";
     }
+
+    private RenderFragment GetBoundEditor() => builder =>
+    {
+        var editorType = typeof(SettingEditorGeneric<>).MakeGenericType(SettingProperty.Type);
+
+        builder.OpenComponent(0, editorType);
+        builder.AddAttribute(1, nameof(SettingEditorGeneric<object>.Value), SettingProperty.Type.NonNullableType().IsEnum ? Enum.ToObject(SettingProperty.Type.NonNullableType(), Value ?? 0) : Value);
+        builder.AddAttribute(2, nameof(SettingEditorGeneric<object>.ValueChanged), EventCallback.Factory.Create<object>(this, value => { Value = value; }));
+
+        builder.AddAttribute(3, nameof(SettingEditorGeneric<object>.SettingProperty), SettingProperty);
+        builder.AddAttribute(4, nameof(SettingEditorGeneric<object>.POCO), POCO);
+        builder.AddAttribute(5, nameof(SettingEditorGeneric<object>.TypeOfInput), InputType);
+        builder.AddAttribute(6, nameof(SettingEditorGeneric<object>.Required), Required);
+        builder.AddAttribute(7, nameof(SettingEditorGeneric<object>.RequiredMessage), RequiredMessage);
+        builder.AddAttribute(8, nameof(SettingEditorGeneric<object>.Disabled), Disabled);
+        builder.AddAttribute(9, nameof(SettingEditorGeneric<object>.Label), Label);
+        builder.AddAttribute(10, nameof(SettingEditorGeneric<object>.Validation), validationAttributes);
+        builder.CloseComponent();
+    };
+
+    private RenderFragment GetDictionaryEditor(DictionaryEntry kvp) => builder =>
+    {
+        var editorType = typeof(SettingEditorGeneric<>).MakeGenericType(ValueType);
+
+        builder.OpenComponent(0, editorType);
+        builder.AddAttribute(1, nameof(SettingEditorGeneric<object>.Value), kvp.Value);
+        builder.AddAttribute(2, nameof(SettingEditorGeneric<object>.ValueChanged), EventCallback.Factory.Create<object>(this, value => { ChangeDictionaryItem(value, kvp.Key); }));
+        builder.AddAttribute(2, nameof(SettingEditorGeneric<object>.ValueDeleted), EventCallback.Factory.Create<object>(this, value => { RemoveValue(kvp.Key); }));
+
+        builder.AddAttribute(5, nameof(SettingEditorGeneric<object>.TypeOfInput), InputType);
+        builder.AddAttribute(8, nameof(SettingEditorGeneric<object>.Disabled), Disabled);
+        builder.AddAttribute(9, nameof(SettingEditorGeneric<object>.Label), "Value");
+        builder.CloseComponent();
+    };
+
+    private RenderFragment GetIEnumerableEditor(object? item, int index) => builder =>
+    {
+        var editorType = typeof(SettingEditorGeneric<>).MakeGenericType(ValueType);
+
+        builder.OpenComponent(0, editorType);
+        builder.AddAttribute(1, nameof(SettingEditorGeneric<object>.Value), item);
+        builder.AddAttribute(2, nameof(SettingEditorGeneric<object>.ValueChanged), EventCallback.Factory.Create<object>(this, value => { ChangeListItem(value, index); }));
+        builder.AddAttribute(2, nameof(SettingEditorGeneric<object>.ValueDeleted), EventCallback.Factory.Create<object>(this, value => { RemoveValue(index); }));
+
+        builder.AddAttribute(5, nameof(SettingEditorGeneric<object>.TypeOfInput), InputType);
+        builder.AddAttribute(8, nameof(SettingEditorGeneric<object>.Disabled), Disabled);
+        builder.AddAttribute(9, nameof(SettingEditorGeneric<object>.Label), "Value");
+        builder.CloseComponent();
+    };
+
+
+    private RenderFragment GetNewEditor(Type valueType, InputType inputType, string? label) => builder =>
+    {
+        var editorType = typeof(SettingEditorGeneric<>).MakeGenericType(valueType);
+
+        builder.OpenComponent(0, editorType);
+        builder.AddAttribute(1, nameof(SettingEditorGeneric<object>.Value), SettingProperty.NewValue);
+        builder.AddAttribute(2, nameof(SettingEditorGeneric<object>.ValueChanged), EventCallback.Factory.Create<object>(this, value => { SettingProperty.NewValue = value; }));
+        builder.AddAttribute(3, nameof(SettingEditorGeneric<object>.ValueAdded), EventCallback.Factory.Create<object>(this, value => { AddValue(); }));
+
+        builder.AddAttribute(5, nameof(SettingEditorGeneric<object>.TypeOfInput), inputType);
+        builder.AddAttribute(8, nameof(SettingEditorGeneric<object>.Disabled), Disabled);
+        builder.AddAttribute(9, nameof(SettingEditorGeneric<object>.Label), label);
+        builder.CloseComponent();
+    };
 
     private static bool IsRestartRequired(PropertyInfo propertyInfo)
         => Attribute.GetCustomAttribute(propertyInfo, typeof(RestartRequiredAttribute), false) as RestartRequiredAttribute is not null;
@@ -160,13 +228,13 @@ public partial class SettingWrapper
             return false;
         }
 
-        if(setter.IsAssembly)
+        if (setter.IsAssembly)
         {
             message = "This property is internal";
             return false;
         }
 
-        if(setter.IsFamily)
+        if (setter.IsFamily)
         {
             message = "This property is protected";
             return false;
@@ -190,7 +258,7 @@ public partial class SettingWrapper
     {
         if (SettingProperty.NewValue is not null || SettingProperty.NotNullType.IsCollection())
         {
-            if(POCOService.AddValue(POCO, SettingProperty) is object val) Value = val;
+            if (POCOService.AddValue(POCO, SettingProperty) is object val) Value = val;
             _useNewValue = true;
             _addNewValue = false;
         }
@@ -207,7 +275,7 @@ public partial class SettingWrapper
     private void ChangeListItem(object? value, int index)
     {
         if (SettingProperty is not null && POCOService.ChangeListItem(POCO, SettingProperty.PropertyInfo, value, index) is object val)
-        { 
+        {
             Value = val;
         }
     }
@@ -216,7 +284,7 @@ public partial class SettingWrapper
     {
         if (SettingProperty is not null)
         {
-            if(POCOService.RemoveValue(POCO, SettingProperty, index) is object val)
+            if (POCOService.RemoveValue(POCO, SettingProperty, index) is object val)
             {
                 Value = val;
             }
@@ -233,7 +301,7 @@ public partial class SettingWrapper
     {
         if (SettingProperty is not null)
         {
-            if(POCOService.RemoveValueWithKey(POCO, SettingProperty.PropertyInfo, key) is object val)
+            if (POCOService.RemoveValueWithKey(POCO, SettingProperty.PropertyInfo, key) is object val)
             {
                 Value = val;
             }

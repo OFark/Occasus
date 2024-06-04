@@ -1,5 +1,6 @@
 ﻿using Humanizer;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Occasus.Attributes;
 using Occasus.Converters;
 using Occasus.Helpers;
@@ -39,9 +40,11 @@ public sealed class SettingBox
     public bool HasChanged => JsonSerializer.Serialize(Value, jsonSerializerOptions).GetHashCode() != startingHash;
     public string HumanTitle { get; }
     public bool IsDefault => Value == Activator.CreateInstance(Type);
+    public bool IsRestartRequired => Attribute.GetCustomAttribute(Type, typeof(RestartRequiredAttribute)) is not null;
+    public bool IsValid => !ValidationResult.Failed;
     public bool RequiresRestart { get; private set; }
-    public bool IsValid { get; internal set; } = true;
     public Type Type { get; set; }
+    public ValidateOptionsResult ValidationResult { get; set; } = ValidateOptionsResult.Skip;
 
     [NotNull]
     public object? Value
@@ -143,9 +146,7 @@ public sealed class SettingBox
 
     private int GetRestartRequiredHash()
     {
-        var restartRequiredAttribute = Attribute.GetCustomAttribute(Type, typeof(RestartRequiredAttribute)) is not null;
-
-        if (restartRequiredAttribute)
+        if (IsRestartRequired)
         {
             return JsonSerializer.Serialize(Value, jsonSerializerOptions).GetHashCode();
         }

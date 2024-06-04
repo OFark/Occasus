@@ -5,7 +5,7 @@ namespace Occasus.Settings.Interfaces;
 
 public interface ISettingService
 {
-    IEnumerable<SettingBox> GetSettings();
+    IList<SettingBox> GetSettings();
     Task<ValidateOptionsResult> PersistSettingToStorage(SettingBox setting, CancellationToken cancellation = default);
     Task ReloadAllSettings(CancellationToken cancellation = default);
     Task ClearAllSettings(CancellationToken cancellation = default);

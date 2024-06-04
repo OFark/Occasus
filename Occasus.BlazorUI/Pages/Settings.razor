@@ -8,12 +8,12 @@
 
     <MudContainer MaxWidth=MaxWidth.ExtraLarge Class="py-6 pb-12" Style="margin-bottom: var(--mud-appbar-height);">
 
-        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
+        <MudTabs @ref=tabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
             @if (settings is not null)
             {
                 @foreach (var setting in settings)
                 {
-                    <SettingTab Setting=setting Token=cts.Token OnSave="SomethingHasChanged" />
+                    <SettingTab Setting=setting Token=cts.Token OnSave="SomethingHasChanged" OnValidate="TabHasValidated" />
                 }
 
             }

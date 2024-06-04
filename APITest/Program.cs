@@ -16,7 +16,7 @@ builder.AddOccasusUI()
 .UseOptionsFromSQLEF(settings =>
 {
     settings.EncryptSettings = true;
-    settings.EncryptionKey = "mypasswordneedstobelonger";
+    settings.EncryptionKey = "mypassword";
     settings.WithSQLConnection(sqlConnBuilder =>
     {
         sqlConnBuilder.ConnectionString = builder.Configuration["ConnectionStrings:SettingsConnectionString"];
@@ -28,15 +28,16 @@ builder.AddOccasusUI()
         dbOptions.EnableRetryOnFailure(3, new(0, 0, 5), null);
     });
 })
-    .WithOptions<TestSimple>()
     .WithOptions<TestComplex>()
+    .WithOptions<TestSimple>()
     .WithOptions<TestArrays>()
     .WithOptions<TestHashSets>()
     .WithOptions<TestLists>()
     .WithFeatureFlagOptions<TestSimple>(builder.Configuration)
     .WithOptions<TestDictionaries>(out var optionsBuilder);
+    
 
-optionsBuilder.Validate(x => x.TestDictionaryStringStrings != null && x.TestDictionaryStringStrings.Count != 0, "Test DictionaryStrings must have some value");
+//optionsBuilder.Validate(x => x.TestDictionaryStringStrings != null && x.TestDictionaryStringStrings.Count != 0, "Test DictionaryStrings must have some value");
 
 
 builder.UseOptionsFromJsonFile("appsettings.json", settings =>

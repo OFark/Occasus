@@ -1,0 +1,13 @@
+﻿@using Occasus.Helpers
+@typeparam T
+
+@GetComponent()
+
+@if (ValueAdded.HasDelegate)
+{
+    <MudButton OnClick="AddValueClick" Class="ml-2 py-4"><MudIcon Icon="@Icons.Material.Rounded.Add" /></MudButton>
+}
+@if (ValueDeleted.HasDelegate)
+{
+    <MudButton OnClick="DeleteValueClick" Class="ml-2 py-4"><MudIcon Icon="@Icons.Material.Rounded.Cancel" /></MudButton>
+}

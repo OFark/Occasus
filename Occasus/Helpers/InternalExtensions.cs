@@ -62,7 +62,7 @@ public static class PublicExtensions
     public static Type NonNullableType(this Type type) => Nullable.GetUnderlyingType(type) ?? type;
     //or it has a parameterless constructor
     public static List<SettingStorage> ToSettingItems(this object obj, string path, ILogger? logger)
-        => ToSettingItems(obj, new Stack<string>(new List<string>() {  path }), logger);
+        => ToSettingItems(obj, new Stack<string>(new List<string>() { path }), logger);
     public static List<SettingStorage> ToSettingItems(this object obj, Stack<string> path, ILogger? logger)
     {
 
@@ -110,18 +110,17 @@ public static class PublicExtensions
             foreach (var item in (IEnumerable)obj)
             {
                 path.Push(i.ToString());
-                if (item.GetType().IsSimple())
+                if (item is not null)
                 {
-                    if (item is not null)
+                    if (item.GetType().IsSimple())
                     {
                         results.Add(new(ConfigurationPath.Combine(path.Reverse()), item is DateTime dt ? dt.ToString("s") : item.ToString()));
                     }
-                }
-                else
-                {
-
-                    var subitems = ToSettingItems(item, path, logger);
-                    results.AddRange(subitems);
+                    else
+                    {
+                        var subitems = ToSettingItems(item, path, logger);
+                        results.AddRange(subitems);
+                    }
                 }
                 path.Pop();
 
@@ -146,7 +145,10 @@ public static class PublicExtensions
 
                     if (prop.PropertyType.IsSimple())
                     {
-                        results.Add(new(ConfigurationPath.Combine(path.Reverse()), value is DateTime dt ? dt.ToString("s") : value.ToString()));
+                        results.Add(new(ConfigurationPath.Combine(path.Reverse()),
+                            value is DateTime dt ? dt.ToString("s")
+                          : value is DateOnly dateo ? dateo.ToString("yyy-MM-dd")
+                          : value.ToString()));
                     }
                     else
                     {
