@@ -7,6 +7,7 @@ using Occasus.Settings.Models;
 using Occasus.SQLEFRepository.Models;
 using Microsoft.Data.SqlClient;
 using System.Diagnostics;
+using Microsoft.Identity.Client.Extensions.Msal;
 
 namespace Occasus.SQLEFRepository;
 
@@ -62,10 +63,23 @@ public class SQLEFSettingsRepository : SettingsRepositoryBase, IOptionsStorageRe
 
     private string CheckTableExistsQuery => $"SELECT COUNT(*) FROM information_schema.TABLES WHERE (TABLE_NAME = '{SQLSettings.TableName}')";
     private string CreateTableCommand => $"CREATE TABLE dbo.[{SQLSettings.TableName}] ([{SQLSettings.KeyColumnName}] varchar(255) NOT NULL,[{SQLSettings.ValueColumnName}] nvarchar(MAX) NOT NULL) ON[PRIMARY]; ALTER TABLE dbo.[{SQLSettings.TableName}] ADD CONSTRAINT PK_{SQLSettings.TableName.Replace(" ", "_")} PRIMARY KEY CLUSTERED([{SQLSettings.KeyColumnName}]) WITH(STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON[PRIMARY]; ALTER TABLE dbo.[{SQLSettings.TableName}] SET(LOCK_ESCALATION = TABLE)";
-    OccasusContext CreateDbContext()
+
+    private OccasusContext? CreateDbContext()
     {
         var context = new OccasusContext(DBContextOptionsBuilder.Options, SQLSettings);
-        context.Database.OpenConnection();
+        try
+        {
+            context.Database.OpenConnection();
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError("Failed to open SQL Connection: {error} \r\n {innerError}", ex.Message, ex.InnerException?.Message);
+            if (SQLSettings.CreateDBOnStartup) return context;
+
+            Messages ??= new();
+            Messages.Add("Failed to open SQL Connection, some settings may not save.");
+            return null;
+        }
 
         return context;
     }
@@ -121,8 +135,9 @@ public class SQLEFSettingsRepository : SettingsRepositoryBase, IOptionsStorageRe
     private async Task DeleteSettings(string? className = null, CancellationToken cancellation = default)
     {
         using var dbContext = CreateDbContext();
+        if (dbContext is null) return;
 
-        if(className is null)
+        if (className is null)
         {
             await dbContext.Settings.ExecuteDeleteAsync(cancellation).ConfigureAwait(false);
             return;
@@ -133,6 +148,8 @@ public class SQLEFSettingsRepository : SettingsRepositoryBase, IOptionsStorageRe
     private void EnsureDBExists()
     {
         using var dbContext = CreateDbContext();
+        if (dbContext is null) return;
+
         dbContext.Database.EnsureCreated();
     }
 
@@ -142,7 +159,8 @@ public class SQLEFSettingsRepository : SettingsRepositoryBase, IOptionsStorageRe
 
         var dic = new Dictionary<string, string>();
         using var dbContext = CreateDbContext();
-        
+        if (dbContext is null) return new Dictionary<string, string>();
+
         return await dbContext.Settings.Where(x => !string.IsNullOrWhiteSpace(x.Key) && x.Value != null)
                           .ToDictionaryAsync(x => x.Key, DecryptValue, cancellation).ConfigureAwait(false);
     }
@@ -153,6 +171,7 @@ public class SQLEFSettingsRepository : SettingsRepositoryBase, IOptionsStorageRe
 
         var dic = new Dictionary<string, string>();
         using var dbContext = CreateDbContext();
+        if (dbContext is null) return new Dictionary<string, string>();
 
         return dbContext.Settings.Where(x => !string.IsNullOrWhiteSpace(x.Key) && x.Value != null)
                           .ToDictionary(x => x.Key, DecryptValue);
@@ -204,7 +223,7 @@ public class SQLEFSettingsRepository : SettingsRepositoryBase, IOptionsStorageRe
 
         await dbContext.SaveChangesAsync(cancellation).ConfigureAwait(false);
 
-        
+
         Logger?.LogTrace("Persisting Settings to SQL Complete");
     }
 }

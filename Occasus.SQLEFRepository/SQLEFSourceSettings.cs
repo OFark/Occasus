@@ -23,8 +23,9 @@ public class SQLEFSourceSettings
     public string TableName { get; set; } = "Settings";
     public string KeyColumnName { get; set; } = "Key";
     public string ValueColumnName { get; set; } = "Value";
-    public bool EncryptSettings { get; set; } = false;
+    public bool EncryptSettings { get; set; }
     public string? EncryptionKey = null;
+    public bool CreateDBOnStartup { get; set; }
 
     public Action<SqlServerDbContextOptionsBuilder>? SqlServerDbContextOptionsBuilder { get; set; }
 

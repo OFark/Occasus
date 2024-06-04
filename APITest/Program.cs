@@ -17,6 +17,7 @@ builder.AddOccasusUI()
 {
     settings.EncryptSettings = true;
     settings.EncryptionKey = "mypassword";
+    settings.CreateDBOnStartup = true;
     settings.WithSQLConnection(sqlConnBuilder =>
     {
         sqlConnBuilder.ConnectionString = builder.Configuration["ConnectionStrings:SettingsConnectionString"];
@@ -33,7 +34,7 @@ builder.AddOccasusUI()
     .WithOptions<TestArrays>()
     .WithOptions<TestHashSets>()
     .WithOptions<TestLists>()
-    .WithFeatureFlagOptions<TestSimple>(builder.Configuration)
+    //.WithFeatureFlagOptions<TestSimple>(builder.Configuration)
     .WithOptions<TestDictionaries>(out var optionsBuilder);
     
 
